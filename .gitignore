@@ -59,6 +59,7 @@ target/
 # data for my project
 *.json
 *.db
+*.db-journal
 
 # windows shortcut files
 *.lnk
