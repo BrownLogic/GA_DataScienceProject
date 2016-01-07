@@ -58,6 +58,7 @@ target/
 
 # data for my project
 *.json
+*.db
 
 # windows shortcut files
 *.lnk
