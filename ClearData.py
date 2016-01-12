@@ -32,11 +32,12 @@ def clear_user(cursor):
 def clear_database():
     db = sqlite3.connect("DsProject.db")
     cursor = db.cursor()
-    #clear_business(cursor)
-    #clear_checkins(cursor)
-    #clear_review(cursor)
-    #clear_tips(cursor)
+    clear_business(cursor)
+    clear_checkins(cursor)
+    clear_review(cursor)
+    clear_tips(cursor)
     clear_user(cursor)
+    cursor.execute(("vacuum")) #optional...reclaims space
     db.commit()
     db.close()
 

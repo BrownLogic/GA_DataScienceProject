@@ -54,7 +54,7 @@ def parse_file(file_path):
     cursor = db.cursor()
 
     row_count = 0
-
+    print "Processing Business File "
     with open(file_path) as the_file:
         for a_line in the_file:
             json_object = json.loads(a_line)
@@ -62,11 +62,12 @@ def parse_file(file_path):
 
             row_count += 1
             if row_count % 1000 == 0:
-                print "Up to row {}".format(row_count)
+                print "Up to row {} in Business file".format(row_count)
 
     db.commit()
     db.close()
 
+    print "Business File Complete.  {0} rows processed".format(row_count)
 
 
 def flatten_attributes(attributes):

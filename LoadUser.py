@@ -40,7 +40,7 @@ def parse_file(file_path):
     cursor = db.cursor()
 
     row_count = 0
-
+    print "Processing User File"
     with open(file_path) as the_file:
         for a_line in the_file:
             json_object = json.loads(a_line)
@@ -48,10 +48,12 @@ def parse_file(file_path):
 
             row_count += 1
             if row_count % 1000 == 0:
-                print "Up to row {}".format(row_count)
+                print "Up to row {} in User file".format(row_count)
 
     db.commit()
     db.close()
+
+    print "User File complete.  {0} rows processed".format(row_count)
 
 
 def persist_user_object(yuo, cursor):

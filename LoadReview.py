@@ -12,6 +12,8 @@ class YelpReview:
     def __init__(self, yelp_json_object):
         if 'type' in yelp_json_object:
             self.type = yelp_json_object['type']
+        if 'review_id' in yelp_json_object:
+            self.review_id = yelp_json_object['review_id']
         if 'business_id' in yelp_json_object:
             self.business_id = yelp_json_object['business_id']
         if 'user_id' in yelp_json_object:
@@ -36,18 +38,20 @@ def parse_file(file_path):
     cursor = db.cursor()
     row_count = 0
 
+    print "Processing Review File"
     with open(file_path) as the_file:
         for a_line in the_file:
             json_object = json.loads(a_line)
             persist_review_object(YelpReview(json_object), cursor)
             row_count += 1
             if row_count % 1000 == 0:
-                print "Up to row {}".format(row_count)
+                print "Up to row {} in Review file".format(row_count)
 
 
 #    cursor.execute("COMMIT TRANSACTION")
     db.commit()
     db.close()
+    print "Review File Complete.  {0} rows processed".format(row_count)
 
 
 def persist_review_object(yro, cursor):
@@ -61,23 +65,23 @@ def persist_review_object(yro, cursor):
     try:
         # Review
         sql = " INSERT INTO Review " \
-              " (business_id, user_id, stars, review_text, review_date) " \
+              " (review_id, business_id, user_id, stars, review_text, review_date) " \
               " values " \
-              " (?, ?, ?, ?, ?) "
-        cursor.execute(sql, (yro.business_id, yro.user_id, yro.stars, yro.review_text, yro.review_date))
+              " (?, ?, ?, ?, ?, ?) "
+        cursor.execute(sql, (yro.review_id, yro.business_id, yro.user_id, yro.stars, yro.review_text, yro.review_date))
 
         #Review_Votes
         for vote_type, vote_count in yro.votes.iteritems():
             sql = " INSERT INTO Review_Votes " \
-                  " (business_id, user_id, vote_type, vote_count) " \
+                  " (review_id, business_id, user_id, vote_type, vote_count) " \
                   " values " \
-                  " (?, ?, ?, ?) "
-            cursor.execute(sql, (yro.business_id, yro.user_id, vote_type, vote_count))
+                  " (?, ?, ?, ?, ?) "
+            cursor.execute(sql, (yro.review_id, yro.business_id, yro.user_id, vote_type, vote_count))
 
 #        cursor.connection.commit()
     except sqlite3.OperationalError:
         cursor.connection.rollback()
-        print "Error with business_id {0}, user_id {1}".format(yro.business_id, yro.user_id)
+        print "Error with review_id {0}, business_id {1}, user_id {2}".format(yrw.review_id, yro.business_id, yro.user_id)
         raise
 
 

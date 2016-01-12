@@ -28,19 +28,22 @@ def parse_file(file_path):
     cursor = db.cursor()
     row_count = 0
 
+    print "Processing Check-in File "
+
     with open(file_path) as the_file:
         for a_line in the_file:
             json_object = json.loads(a_line)
             persist_checkin_object(YelpCheckin(json_object), cursor)
             row_count += 1
             if row_count % 1000 == 0:
-                print "Up to row {}".format(row_count)
+                print "Up to row {} in Check-in file".format(row_count)
 
 
 #    cursor.execute("COMMIT TRANSACTION")
     db.commit()
     db.close()
 
+    print "Check-In File Complete.  {0} rows processed ".format(row_count)
 
 def persist_checkin_object(yco, cursor):
     # We know all of the attributes we can have
