@@ -24,6 +24,13 @@ class YelpCheckin:
 def clear_tables(cursor):
     cursor.execute("delete from Checkins")
 
+def drop_indexes(cursor):
+    cursor.execute("DROP INDEX Checkins_checkin_info_index ON checkins")
+
+
+def create_indexes(cursor):
+    cursor.execute("CREATE INDEX Checkins_checkin_info_index ON checkins (checkin_info)")
+
 
 def parse_file(file_path):
     """Read in the json data set file and load into database
@@ -39,6 +46,8 @@ def parse_file(file_path):
     cursor.execute('SET CHARACTER SET utf8;')
     cursor.execute('SET character_set_connection=utf8;')
 
+    print "Dropping indexes and clearing tables"
+    drop_indexes(cursor)
     clear_tables(cursor)
     row_count = 0
 
@@ -51,6 +60,9 @@ def parse_file(file_path):
             row_count += 1
             if row_count % 1000 == 0:
                 print "Up to row {} in Check-in file".format(row_count)
+
+    print "Creating indexes"
+    create_indexes(cursor)
 
     db.commit()
     db.close()

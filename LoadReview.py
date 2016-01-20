@@ -33,6 +33,28 @@ def clear_tables(cursor):
     cursor.execute("delete from Review_Votes")
     cursor.execute("delete from Review")
 
+
+
+def drop_indexes(cursor):
+    cursor.execute("DROP INDEX Review_Business_id_index ON review")
+    cursor.execute("DROP INDEX Review_date_index ON review")
+    cursor.execute("DROP INDEX Review_stars_index ON review")
+    cursor.execute("DROP INDEX Review_user_id_index ON review")
+    cursor.execute("DROP INDEX Review_Votes_Business_id_index ON review_votes")
+    cursor.execute("DROP INDEX Review_Votes_User_id_index ON review_votes")
+    cursor.execute("DROP INDEX Review_Votes_vote_type_index ON review_votes")
+
+
+def create_indexes(cursor):
+    cursor.execute("CREATE INDEX Review_Business_id_index ON review (business_id)")
+    cursor.execute("CREATE INDEX Review_date_index ON review (review_date)")
+    cursor.execute("CREATE INDEX Review_stars_index ON review (stars)")
+    cursor.execute("CREATE INDEX Review_user_id_index ON review (user_id)")
+    cursor.execute("CREATE INDEX Review_Votes_Business_id_index ON review_votes (business_id)")
+    cursor.execute("CREATE INDEX Review_Votes_User_id_index ON review_votes (user_id)")
+    cursor.execute("CREATE INDEX Review_Votes_vote_type_index ON review_votes (vote_type)")
+
+
 def parse_file(file_path):
     """Read in the json data set file and load into database
     :param (str) file_path :
@@ -47,6 +69,8 @@ def parse_file(file_path):
     cursor.execute('SET CHARACTER SET utf8;')
     cursor.execute('SET character_set_connection=utf8;')
 
+    print "Dropping indexes and clearing tables"
+    drop_indexes(cursor)
     clear_tables(cursor)
     row_count = 0
 
@@ -60,7 +84,9 @@ def parse_file(file_path):
                 print "Up to row {} in Review file".format(row_count)
 
 
-#    cursor.execute("COMMIT TRANSACTION")
+    print "Creating indexes"
+    create_indexes(cursor)
+
     db.commit()
     db.close()
     print "Review File Complete.  {0} rows processed".format(row_count)

@@ -38,6 +38,26 @@ def clear_tables(cursor):
     cursor.execute("delete from User_Compliments")
     cursor.execute("delete from User")
 
+def drop_indexes(cursor):
+    cursor.execute("DROP INDEX User_Compliments_compliment_type_index ON user_compliments")
+    cursor.execute("DROP INDEX User_Compliments_user_id_index ON user_compliments")
+    cursor.execute("DROP INDEX User_Elite_user_id_index ON user_elite")
+    cursor.execute("DROP INDEX User_Friends_friends_index ON user_friends")
+    cursor.execute("DROP INDEX User_Friends_user_id_index ON user_friends")
+    cursor.execute("DROP INDEX User_Votes_user_id_index ON user_votes")
+    cursor.execute("DROP INDEX User_Votes_vote_type_index ON user_votes")
+
+
+def create_indexes(cursor):
+    cursor.execute("CREATE INDEX User_Compliments_compliment_type_index ON user_compliments (compliment_type)")
+    cursor.execute("CREATE INDEX User_Compliments_user_id_index ON user_compliments (user_id)")
+    cursor.execute("CREATE INDEX User_Elite_user_id_index ON user_elite (user_id)")
+    cursor.execute("CREATE INDEX User_Friends_friends_index ON user_friends (friends)")
+    cursor.execute("CREATE INDEX User_Friends_user_id_index ON user_friends (user_id)")
+    cursor.execute("CREATE INDEX User_Votes_user_id_index ON user_votes (user_id)")
+    cursor.execute("CREATE INDEX User_Votes_vote_type_index ON user_votes (vote_type)")
+
+
 def parse_file(file_path):
     """Read in the json data set file and load into database
     :param (str) file_path :
@@ -52,6 +72,8 @@ def parse_file(file_path):
     cursor.execute('SET CHARACTER SET utf8;')
     cursor.execute('SET character_set_connection=utf8;')
 
+    print "Dropping indexes and clearing tables"
+    drop_indexes(cursor)
     clear_tables(cursor)
 
     row_count = 0
@@ -64,6 +86,9 @@ def parse_file(file_path):
             row_count += 1
             if row_count % 1000 == 0:
                 print "Up to row {} in User file".format(row_count)
+
+    print "Creating indexes"
+    create_indexes(cursor)
 
     db.commit()
     db.close()

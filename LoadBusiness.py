@@ -56,6 +56,22 @@ def clear_tables(cursor):
     cursor.execute("delete from Business")
 
 
+def drop_indexes(cursor):
+    cursor.execute("DROP INDEX Bus_hours_day_of_week_index ON bus_hours")
+    cursor.execute("DROP INDEX Bus_Attributes_attribute_index ON bus_attributes")
+    cursor.execute("DROP INDEX Business_city_index ON business")
+    cursor.execute("DROP INDEX Business_stars_index ON business")
+    cursor.execute("DROP INDEX Business_state_index ON business")
+
+
+def create_indexes(cursor):
+    cursor.execute("CREATE INDEX Bus_hours_day_of_week_index ON bus_hours (day_of_week)")
+    cursor.execute("CREATE INDEX Bus_Attributes_attribute_index ON bus_attributes (attribute)")
+    cursor.execute("CREATE INDEX Business_city_index ON business (city)")
+    cursor.execute("CREATE INDEX Business_stars_index ON business (stars)")
+    cursor.execute("CREATE INDEX Business_state_index ON business (state)")
+
+
 def parse_file(file_path):
     """Read in the json data set file and load into database
     :param (str) file_path :
@@ -70,6 +86,8 @@ def parse_file(file_path):
     cursor.execute('SET CHARACTER SET utf8;')
     cursor.execute('SET character_set_connection=utf8;')
 
+    print "Dropping indexes and clearing tables"
+    drop_indexes(cursor)
     clear_tables(cursor)
 
     row_count = 0
@@ -82,6 +100,9 @@ def parse_file(file_path):
             row_count += 1
             if row_count % 1000 == 0:
                 print "Up to row {} in Business file".format(row_count)
+
+    print "Creating indexes"
+    create_indexes(cursor)
 
     db.commit()
     db.close()

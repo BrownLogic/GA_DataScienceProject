@@ -9,6 +9,11 @@ from database import login_info
 def clear_tables(cursor):
     cursor.execute("delete from User_Tips")
 
+def drop_indexes(cursor):
+    cursor.execute("")
+
+def create_indexes(cursor):
+    cursor.execute("")
 
 class YelpTip:
     """organize check-in data"""
@@ -27,6 +32,17 @@ class YelpTip:
         if 'likes' in yelp_json_object:
             self.likes = yelp_json_object['likes']
 
+def drop_indexes(cursor):
+    cursor.execute("DROP INDEX User_Tips_business_id_index ON user_tips")
+    cursor.execute("DROP INDEX User_Tips_tip_date_index ON user_tips")
+    cursor.execute("DROP INDEX User_Tips_user_id_index ON user_tips")
+
+
+def create_indexes(cursor):
+    cursor.execute("CREATE INDEX User_Tips_business_id_index ON user_tips (business_id)")
+    cursor.execute("CREATE INDEX User_Tips_tip_date_index ON user_tips (tip_date)")
+    cursor.execute("CREATE INDEX User_Tips_user_id_index ON user_tips (user_id)")
+
 
 def parse_file(file_path):
     """Read in the json data set file and load into database
@@ -42,6 +58,8 @@ def parse_file(file_path):
     cursor.execute('SET CHARACTER SET utf8;')
     cursor.execute('SET character_set_connection=utf8;')
 
+    print "Dropping indexes and clearing tables"
+    drop_indexes(cursor)
     clear_tables(cursor)
     row_count = 0
 
@@ -55,7 +73,9 @@ def parse_file(file_path):
                 print "Up to row {} in Tips file".format(row_count)
 
 
-#    cursor.execute("COMMIT TRANSACTION")
+    print "Creating indexes"
+    create_indexes(cursor)
+
     db.commit()
     db.close()
 
