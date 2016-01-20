@@ -6,13 +6,13 @@ from pprint import pprint
 from time import time
 import logging
 
-from sklearn.datasets import fetch_20newsgroups
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.linear_model import SGDClassifier
 from sklearn.grid_search import GridSearchCV
 from sklearn.pipeline import Pipeline
-import sqlite3
+from database import login_info
+import MySQLdb
 import pandas as pd
 import numpy as np
 import matplotlib as mpl
@@ -28,9 +28,8 @@ logging.basicConfig(level=logging.INFO,
 # stage the data
 def get_the_data(num_of_records):
     #Returns review dataframe
-    con = sqlite3.connect('DsProject.db')
-    #ret = pd.read_sql_query('select stars, review_text from Review', con=con)
-    ret = pd.read_sql_query('select stars, review_text from Review order by random() limit {0}'.format(num_of_records), con=con)
+    con = MySQLdb.connect(**login_info)
+    ret = pd.read_sql_query('select stars, review_text from Review order by rand() limit {0}'.format(num_of_records), con=con)
     con.close()
     ret['review_type'] = ret['stars'].map(lambda x: 'unfavorable' if x <3 else 'favorable')
 
@@ -68,7 +67,7 @@ if __name__ == "__main__":
     # find the best parameters for both the feature extraction and the
     # classifier
 
-    num_of_records = 10000
+    num_of_records = 100
 
     grid_search = GridSearchCV(pipeline, parameters, n_jobs=1, verbose=1)
 

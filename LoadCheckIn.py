@@ -1,9 +1,10 @@
 """
-This file is for parsing the business JSON file and loading the database
+LoadCheckIn.py: This file is for parsing the CheckIn JSON file and loading the database
 Assumes that the database has been built
 """
 import json
-import sqlite3
+import MySQLdb
+from database import login_info
 
 
 class YelpCheckin:
@@ -20,12 +21,25 @@ class YelpCheckin:
             self.checkin = {}
 
 
+def clear_tables(cursor):
+    cursor.execute("delete from Checkins")
+
+
 def parse_file(file_path):
     """Read in the json data set file and load into database
     :param (str) file_path :
     """
-    db = sqlite3.connect("DsProject.db")
+    db = MySQLdb.connect(**login_info)
+    db.set_character_set('utf8') #From http://stackoverflow.com/questions/3942888/unicodeencodeerror-latin-1-codec-cant-encode-character
+
     cursor = db.cursor()
+
+    #From http://stackoverflow.com/questions/3942888/unicodeencodeerror-latin-1-codec-cant-encode-character
+    cursor.execute('SET NAMES utf8;')
+    cursor.execute('SET CHARACTER SET utf8;')
+    cursor.execute('SET character_set_connection=utf8;')
+
+    clear_tables(cursor)
     row_count = 0
 
     print "Processing Check-in File "
@@ -38,8 +52,6 @@ def parse_file(file_path):
             if row_count % 1000 == 0:
                 print "Up to row {} in Check-in file".format(row_count)
 
-
-#    cursor.execute("COMMIT TRANSACTION")
     db.commit()
     db.close()
 
@@ -51,7 +63,7 @@ def persist_checkin_object(yco, cursor):
     # this first pass, I'm not going to try and be clever..just work my way down
     """
     :type yco: YelpCheckin
-    :type cursor: sqlite3.cursor
+    :type cursor: MySqlDB.cursor
     """
     try:
         # CheckIn
@@ -60,17 +72,16 @@ def persist_checkin_object(yco, cursor):
             sql = " INSERT INTO Checkins " \
                   " (business_id, checkin_info, checkin_count) " \
                   " values " \
-                  " (?, ?, ?) "
-            cursor.execute(sql, (yco.business_id, checkin_info, checkin_count))
+                  " (%s, %s, %s) "
+            cursor.execute(sql, [yco.business_id, checkin_info, checkin_count])
 
-#        cursor.connection.commit()
-    except sqlite3.OperationalError:
+    except MySQLdb.Error as err:
         cursor.connection.rollback()
+        print err
         print "Error with business_id {0}".format(yco.business_id)
         raise
 
 
 if __name__ == '__main__':
-    #parse_file('C:\\Users\\matt\\Documents\\Projects\\SqliteSandbox\\checkin_one_record.json')
     parse_file('C:\\Users\\matt\\GA_DataScience\\DataScienceProject\\Yelp\\yelp_academic_dataset_checkin.json')
     #45166 records

@@ -1,10 +1,10 @@
 """
-This file is for parsing the user JSON file and loading the database
+LoadUser.py:This file is for parsing the user JSON file and loading the database
 Assumes that the database has been built
 """
 import json
-import sqlite3
-import collections
+import MySQLdb
+from database import login_info
 
 class YelpUser:
     """organize user data"""
@@ -31,13 +31,28 @@ class YelpUser:
         if 'compliments' in yelp_json_object:
             self.compliments = yelp_json_object['compliments']
 
+def clear_tables(cursor):
+    cursor.execute("delete from User_Votes")
+    cursor.execute("delete from User_Friends")
+    cursor.execute("delete from User_Elite")
+    cursor.execute("delete from User_Compliments")
+    cursor.execute("delete from User")
 
 def parse_file(file_path):
     """Read in the json data set file and load into database
     :param (str) file_path :
     """
-    db = sqlite3.connect("DsProject.db")
+    db = MySQLdb.connect(**login_info)
+    db.set_character_set('utf8') #From http://stackoverflow.com/questions/3942888/unicodeencodeerror-latin-1-codec-cant-encode-character
+
     cursor = db.cursor()
+
+    #From http://stackoverflow.com/questions/3942888/unicodeencodeerror-latin-1-codec-cant-encode-character
+    cursor.execute('SET NAMES utf8;')
+    cursor.execute('SET CHARACTER SET utf8;')
+    cursor.execute('SET character_set_connection=utf8;')
+
+    clear_tables(cursor)
 
     row_count = 0
     print "Processing User File"
@@ -62,56 +77,56 @@ def persist_user_object(yuo, cursor):
     # this first pass, I'm not going to try and be clever..just work my way down
     """
     :type yuo: YelpUser
-    :type cursor: sqlite3.cursor
+    :type cursor: MySQLdb.cursor
     """
     try:
         # User
         sql = " INSERT INTO User " \
               " (user_id, name, review_count, average_stars, yelping_since, fans)" \
               " values " \
-              " (?, ?, ?, ?, ?, ?) "
-        cursor.execute(sql, (yuo.user_id, yuo.name, yuo.review_count, yuo.average_stars, yuo.yelping_since, yuo.fans))
+              " (%s, %s, %s, %s, %s, %s) "
+        cursor.execute(sql, [yuo.user_id, yuo.name, yuo.review_count, yuo.average_stars, yuo.yelping_since, yuo.fans])
 
         # User_Compliments
         for comp_type, comp_count in yuo.compliments.iteritems():
             sql = " INSERT INTO User_Compliments " \
                   " (user_id, compliment_type, compliment_count) " \
                   " values " \
-                  " (?, ?, ?) "
-            cursor.execute(sql, (yuo.user_id, comp_type, comp_count))
+                  " (%s, %s, %s) "
+            cursor.execute(sql, [yuo.user_id, comp_type, comp_count])
 
         # User_Elite
         for years in yuo.elite:
             sql = " INSERT INTO User_Elite " \
                   " (user_id, years_elite) " \
                   " values " \
-                  " (?, ?) "
-            cursor.execute(sql, (yuo.user_id, years))
+                  " (%s, %s) "
+            cursor.execute(sql, [yuo.user_id, years])
 
         # User_Friends
         for friend in yuo.friends:
             sql = " INSERT INTO User_Friends " \
                   " (user_id, friends) " \
                   " values " \
-                  " (?, ?) "
-            cursor.execute(sql, (yuo.user_id, friend))
+                  " (%s, %s) "
+            cursor.execute(sql, [yuo.user_id, friend])
 
         # User_Votes
         for vote_type, vote_count in yuo.votes.iteritems():
             sql = " INSERT INTO User_Votes " \
                   " (user_id, vote_type, vote_count) " \
                   " values " \
-                  " (?, ?, ?) "
-            cursor.execute(sql, (yuo.user_id, vote_type, vote_count))
+                  " (%s, %s, %s) "
+            cursor.execute(sql, [yuo.user_id, vote_type, vote_count])
 
-#        cursor.connection.commit()
-    except sqlite3.OperationalError:
+        cursor.connection.commit()
+    except MySQLdb.Error as err:
         cursor.connection.rollback()
+        print err
         print "Error with business_id {0}".format(yuo.user_id)
         raise
 
 
 if __name__ == '__main__':
-    #parse_file('C:\\Users\\matt\\Documents\\Projects\\SqliteSandbox\\user_one_record.json')
     parse_file('C:\\Users\\matt\\GA_DataScience\\DataScienceProject\\Yelp\\yelp_academic_dataset_user.json')
     #366715 records

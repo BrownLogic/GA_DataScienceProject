@@ -1,10 +1,12 @@
 """
-This file is for parsing the business JSON file and loading the database
+LoadBusiness.py:  This file is for parsing the business JSON file and loading the database
 Assumes that the database has been built
 """
 import json
-import sqlite3
 import collections
+import MySQLdb
+from database import login_info
+
 
 class YelpBusiness:
     """organize business data"""
@@ -46,12 +48,29 @@ class YelpBusiness:
             self.hours = {}
 
 
+def clear_tables(cursor):
+    cursor.execute("delete from Bus_hours")
+    cursor.execute("delete from Bus_Neighborhoods")
+    cursor.execute("delete from Bus_Attributes")
+    cursor.execute("delete from Bus_Categories")
+    cursor.execute("delete from Business")
+
+
 def parse_file(file_path):
     """Read in the json data set file and load into database
     :param (str) file_path :
     """
-    db = sqlite3.connect("DsProject.db")
+    db = MySQLdb.connect(**login_info)
+    db.set_character_set('utf8') #From http://stackoverflow.com/questions/3942888/unicodeencodeerror-latin-1-codec-cant-encode-character
+
     cursor = db.cursor()
+
+    #From http://stackoverflow.com/questions/3942888/unicodeencodeerror-latin-1-codec-cant-encode-character
+    cursor.execute('SET NAMES utf8;')
+    cursor.execute('SET CHARACTER SET utf8;')
+    cursor.execute('SET character_set_connection=utf8;')
+
+    clear_tables(cursor)
 
     row_count = 0
     print "Processing Business File "
@@ -75,8 +94,6 @@ def flatten_attributes(attributes):
     # some of the elements will *also* be dictionaries
     # this function flattens the result into a flattened reference
     ret = {}
-    new_key = ''
-    new_value = ''
 
     for k, v in attributes.iteritems():
         if isinstance(v, collections.MutableMapping):
@@ -93,7 +110,7 @@ def persist_business_object(ybo, cursor):
     # this first pass, I'm not going to try and be clever..just work my way down
     """
     :type ybo: YelpBusiness
-    :type cursor: sqlite3.cursor
+    :type cursor: MySQLdb.cursor
     """
     try:
         # Business
@@ -101,32 +118,32 @@ def persist_business_object(ybo, cursor):
               " (business_id, type, name, city, state, full_address, " \
               " latitude, longitude, stars, review_count, open) " \
               " values " \
-              " (?, ?, ?, ?, ?, ?, " \
-              " ?, ?, ?, ?, ?) "
-        cursor.execute(sql, (ybo.business_id, ybo.type, ybo.name, ybo.city, ybo.state,
-                                    ybo.full_address,
-                                    ybo.latitude, ybo.longitude, ybo.stars, ybo.review_count, ybo.open))
+              " (%s, %s, %s, %s, %s, %s, " \
+              " %s, %s, %s, %s, %s) "
+        cursor.execute(sql, [ybo.business_id, ybo.type, ybo.name, ybo.city, ybo.state,
+                                ybo.full_address,
+                                ybo.latitude, ybo.longitude, ybo.stars, ybo.review_count, ybo.open])
         # Bus_Attributes
         for attribute, attribute_value in ybo.attributes.iteritems():
             sql = " INSERT INTO Bus_Attributes " \
                   " (business_id, attribute, attribute_value) " \
                   " values " \
-                  " (?, ?, ?) "
-            cursor.execute(sql, (ybo.business_id, attribute, attribute_value))
+                  " (%s, %s, %s) "
+            cursor.execute(sql, [ybo.business_id, attribute, attribute_value])
 
         # Bus_Categories
         for cat in ybo.categories:
             sql = " INSERT INTO Bus_Categories " \
                   " (business_id, category) " \
                   " values " \
-                  " (?, ?) "
-            cursor.execute(sql, (ybo.business_id, cat))
+                  " (%s, %s) "
+            cursor.execute(sql, [ybo.business_id, cat])
         # Bus_Neighborhoods
         for hood in ybo.neighborhoods:
             sql = " INSERT INTO Bus_Neighborhoods " \
                   " (business_id, neighborhood) " \
                   " values " \
-                  " (?, ?) "
+                  " (%s, %s) "
             cursor.execute(sql, (ybo.business_id, hood))
         # Bus_Hours
         # This one is a bit more squirrely. The 'hours' is a dictionary itself
@@ -134,17 +151,17 @@ def persist_business_object(ybo, cursor):
             sql = " INSERT INTO Bus_hours " \
                   " (business_id, day_of_week, open_time, close_time) " \
                   " VALUES " \
-                  " (?, ?, ?, ?) "
-            cursor.execute(sql,(ybo.business_id, day, times['open'], times['close']))
+                  " (%s, %s, %s, %s) "
+            cursor.execute(sql,[ybo.business_id, day, times['open'], times['close']])
 
 #        cursor.connection.commit()
-    except sqlite3.OperationalError:
+    except MySQLdb.Error as err:
         cursor.connection.rollback()
+        print err
         print "Error with business_id {0}".format(ybo.business_id)
         raise
 
 
 if __name__ == '__main__':
-    #parse_file('C:\\Users\\matt\\Documents\\Projects\\SqliteSandbox\\business_one_record.json')
     parse_file('C:\\Users\\matt\\GA_DataScience\\DataScienceProject\\Yelp\\yelp_academic_dataset_business.json')
     #61184 records

@@ -60,6 +60,7 @@ target/
 *.json
 *.db
 *.db-journal
+database.py
 
 # windows shortcut files
 *.lnk

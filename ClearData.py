@@ -1,4 +1,8 @@
-import sqlite3
+"""
+ClearData.py: Clears all of the (known) tables in ProjectDB
+"""
+import MySQLdb
+from database import login_info
 
 def clear_tables(tables, cursor):
     for table in tables:
@@ -30,14 +34,15 @@ def clear_user(cursor):
     clear_tables(tables, cursor)
 
 def clear_database():
-    db = sqlite3.connect("DsProject.db")
+    db = MySQLdb.connect(**login_info)
+
+
     cursor = db.cursor()
     clear_business(cursor)
     clear_checkins(cursor)
     clear_review(cursor)
     clear_tips(cursor)
     clear_user(cursor)
-    cursor.execute(("vacuum")) #optional...reclaims space
     db.commit()
     db.close()
 
