@@ -125,7 +125,7 @@ def parse_file(file_path, batch_size=100, how_many=-1):
                 total_time = (time.time() - start_time)
                 time_since_last_post = time.time() - update_time
                 update_time = time.time()
-                print "Up to row {} in Business file.  Total Time: {}; TimeSinceLastPost:{}".format(row_count, total_time, time_since_last_post)
+                print "Up to row {} in Business file.  Total Time: {0:.4g}; TimeSinceLastPost:{0:.4g}".format(row_count, total_time, time_since_last_post)
 
             if how_many > 0 and row_count % how_many == 0:
                 break
