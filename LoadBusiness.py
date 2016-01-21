@@ -77,9 +77,9 @@ def create_indexes(cursor):
     try:
         cursor.execute("CREATE INDEX Bus_hours_day_of_week_index ON bus_hours (day_of_week)")
         cursor.execute("CREATE INDEX Bus_Attributes_attribute_index ON bus_attributes (attribute)")
-        cursor.execute("CREATE INDEX Business_city_index ON business (city)")
-        cursor.execute("CREATE INDEX Business_stars_index ON business (stars)")
-        cursor.execute("CREATE INDEX Business_state_index ON business (state)")
+        cursor.execute("CREATE INDEX Business_city_index ON Business (city)")
+        cursor.execute("CREATE INDEX Business_stars_index ON Business (stars)")
+        cursor.execute("CREATE INDEX Business_state_index ON Business (state)")
         cursor.execute("ALTER TABLE Bus_hours ADD PRIMARY KEY (business_id, day_of_week)")
         cursor.execute("ALTER TABLE Bus_Neighborhoods ADD PRIMARY KEY (business_id, neighborhood)")
         cursor.execute("ALTER TABLE Bus_Attributes ADD PRIMARY KEY (business_id, attribute)")
@@ -192,7 +192,7 @@ def persist_list_o_business_objects(list_o_ybos, cursor):
 
     try:
         if business_set_count > 0:
-            sql_base = " INSERT INTO business " \
+            sql_base = " INSERT INTO Business " \
                   " (business_id, type, name, city, state, full_address, " \
                   " latitude, longitude, stars, review_count, open) " \
                   " values {}"
@@ -201,7 +201,7 @@ def persist_list_o_business_objects(list_o_ybos, cursor):
             cursor.execute(sql, business_data)
 
         if bus_attributes_set_count > 0:
-            sql_base = " INSERT INTO bus_attributes " \
+            sql_base = " INSERT INTO Bus_Attributes " \
                       " (business_id, attribute, attribute_value) " \
                       " values {}"
             parameter_base = "(%s, %s, %s)"
@@ -209,7 +209,7 @@ def persist_list_o_business_objects(list_o_ybos, cursor):
             cursor.execute(sql, bus_attributes_data)
 
         if bus_categories_set_count > 0:
-            sql_base = " INSERT INTO bus_categories " \
+            sql_base = " INSERT INTO Bus_Categories " \
                   " (business_id, category) " \
                   " values {}"
             parameter_base = "(%s, %s)"
@@ -218,7 +218,7 @@ def persist_list_o_business_objects(list_o_ybos, cursor):
 
 
         if bus_neighborhoods_set_count > 0:
-            sql_base = " INSERT INTO bus_neighborhoods " \
+            sql_base = " INSERT INTO Bus_Neighborhoods " \
                   " (business_id, neighborhood) " \
                   " values {}"
             parameter_base = "(%s, %s)"
@@ -226,7 +226,7 @@ def persist_list_o_business_objects(list_o_ybos, cursor):
             cursor.execute(sql, bus_neighborhoods_data)
 
         if bus_hours_set_count > 0:
-            sql_base = " INSERT INTO bus_hours " \
+            sql_base = " INSERT INTO Bus_Hours " \
                   " (business_id, day_of_week, open_time, close_time) " \
                   " VALUES {}"
             parameter_base = "(%s, %s, %s, %s)"
