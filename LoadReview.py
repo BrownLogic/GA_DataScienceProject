@@ -5,6 +5,7 @@ Assumes that the database has been built
 import json
 import MySQLdb
 from database import login_info
+import time
 
 class YelpReview:
     """organize check-in data"""
@@ -36,26 +37,36 @@ def clear_tables(cursor):
 
 
 def drop_indexes(cursor):
-    cursor.execute("DROP INDEX Review_Business_id_index ON review")
-    cursor.execute("DROP INDEX Review_date_index ON review")
-    cursor.execute("DROP INDEX Review_stars_index ON review")
-    cursor.execute("DROP INDEX Review_user_id_index ON review")
-    cursor.execute("DROP INDEX Review_Votes_Business_id_index ON review_votes")
-    cursor.execute("DROP INDEX Review_Votes_User_id_index ON review_votes")
-    cursor.execute("DROP INDEX Review_Votes_vote_type_index ON review_votes")
+    try:
+        cursor.execute("DROP INDEX Review_Business_id_index ON review")
+        cursor.execute("DROP INDEX Review_date_index ON review")
+        cursor.execute("DROP INDEX Review_stars_index ON review")
+        cursor.execute("DROP INDEX Review_user_id_index ON review")
+        cursor.execute("DROP INDEX Review_Votes_Business_id_index ON review_votes")
+        cursor.execute("DROP INDEX Review_Votes_User_id_index ON review_votes")
+        cursor.execute("DROP INDEX Review_Votes_vote_type_index ON review_votes")
+        cursor.execute("ALTER TABLE Review_Votes DROP PRIMARY KEY")
+        cursor.execute("ALTER TABLE Review DROP PRIMARY KEY")
+    except:
+        pass
 
 
 def create_indexes(cursor):
-    cursor.execute("CREATE INDEX Review_Business_id_index ON review (business_id)")
-    cursor.execute("CREATE INDEX Review_date_index ON review (review_date)")
-    cursor.execute("CREATE INDEX Review_stars_index ON review (stars)")
-    cursor.execute("CREATE INDEX Review_user_id_index ON review (user_id)")
-    cursor.execute("CREATE INDEX Review_Votes_Business_id_index ON review_votes (business_id)")
-    cursor.execute("CREATE INDEX Review_Votes_User_id_index ON review_votes (user_id)")
-    cursor.execute("CREATE INDEX Review_Votes_vote_type_index ON review_votes (vote_type)")
+    try:
+        cursor.execute("CREATE INDEX Review_Business_id_index ON review (business_id)")
+        cursor.execute("CREATE INDEX Review_date_index ON review (review_date)")
+        cursor.execute("CREATE INDEX Review_stars_index ON review (stars)")
+        cursor.execute("CREATE INDEX Review_user_id_index ON review (user_id)")
+        cursor.execute("CREATE INDEX Review_Votes_Business_id_index ON review_votes (business_id)")
+        cursor.execute("CREATE INDEX Review_Votes_User_id_index ON review_votes (user_id)")
+        cursor.execute("CREATE INDEX Review_Votes_vote_type_index ON review_votes (vote_type)")
+        cursor.execute("ALTER TABLE Review_Votes ADD PRIMARY KEY (review_id, business_id, user_id, vote_type)")
+        cursor.execute("ALTER TABLE Review ADD PRIMARY KEY (review_id)")
+    except:
+        pass
 
 
-def parse_file(file_path):
+def parse_file(file_path, batch_size=100, how_many=-1):
     """Read in the json data set file and load into database
     :param (str) file_path :
     """
@@ -74,15 +85,31 @@ def parse_file(file_path):
     clear_tables(cursor)
     row_count = 0
 
+    list_of_yros = []
     print "Processing Review File"
+
+    start_time = time.time()
+    update_time = start_time
     with open(file_path) as the_file:
         for a_line in the_file:
             json_object = json.loads(a_line)
-            persist_review_object(YelpReview(json_object), cursor)
+            list_of_yros.append(YelpReview(json_object))
             row_count += 1
-            if row_count % 1000 == 0:
-                print "Up to row {} in Review file".format(row_count)
+            if row_count % batch_size == 0:
+                persist_list_o_review_objects(list_of_yros, cursor)
+                list_of_yros=[]
 
+            if row_count % 1000 == 0:
+                total_time = (time.time() - start_time)
+                time_since_last_post = time.time() - update_time
+                update_time = time.time()
+                print "Up to row {} in Review file.  Total Time: {}; TimeSinceLastPost:{}".format(row_count, total_time, time_since_last_post)
+
+            if how_many > 0 and row_count % how_many == 0:
+                break
+
+        #catch the stragglers
+        persist_list_o_review_objects(list_of_yros,cursor)
 
     print "Creating indexes"
     create_indexes(cursor)
@@ -90,6 +117,39 @@ def parse_file(file_path):
     db.commit()
     db.close()
     print "Review File Complete.  {0} rows processed".format(row_count)
+
+def persist_list_o_review_objects(list_o_yros, cursor):
+    review_data = []
+    review_set_count = 0
+    review_votes_data = []
+    review_votes_set_count = 0
+    for yro in list_o_yros:
+        review_data+=[yro.review_id, yro.business_id, yro.user_id, yro.stars, yro.review_text, yro.review_date]
+        review_set_count+=1
+        for vote_type, vote_count in yro.votes.iteritems():
+            review_votes_data+=[yro.review_id, yro.business_id, yro.user_id, vote_type, vote_count]
+            review_votes_set_count+=1
+    try:
+        if review_set_count > 0:
+            sql_base = " INSERT INTO Review " \
+              " (review_id, business_id, user_id, stars, review_text, review_date) " \
+              " values {}"
+            parameter_base = "(%s, %s, %s, %s, %s, %s)"
+            sql = sql_base.format(", ".join([parameter_base]* review_set_count))
+            cursor.execute(sql, review_data)
+        if review_votes_set_count > 0:
+            sql_base = " INSERT INTO Review_Votes " \
+                  " (review_id, business_id, user_id, vote_type, vote_count) " \
+                  " values {}"
+            parameter_base = "(%s, %s, %s, %s, %s)"
+            sql = sql_base.format(", ".join([parameter_base]* review_votes_set_count))
+            cursor.execute(sql, review_votes_data)
+
+        cursor.connection.commit()
+
+    except MySQLdb.Error as err:
+        cursor.connection.rollback()
+        print err
 
 
 def persist_review_object(yro, cursor):
@@ -121,9 +181,11 @@ def persist_review_object(yro, cursor):
         cursor.connection.rollback()
         print err
         print "Error with review_id {0}, business_id {1}, user_id {2}".format(yro.review_id, yro.business_id, yro.user_id)
-        raise
+
 
 
 if __name__ == '__main__':
-    parse_file('/home/ubuntu/projects/ga_yelp/yelp_data_raw/yelp_academic_dataset_review.json')
+    the_file = 'C:\\Users\\matt\\GA_DataScience\\DataScienceProject\\Yelp\\yelp_academic_dataset_review.json'
+    #the_file = '/home/ubuntu/projects/ga_yelp/yelp_data_raw/yelp_academic_dataset_review.json'
+    parse_file(the_file, 101, 5000)
     #1569264 records

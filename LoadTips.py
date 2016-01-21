@@ -5,15 +5,10 @@ Assumes that the database has been built
 import json
 import MySQLdb
 from database import login_info
+import time
 
 def clear_tables(cursor):
     cursor.execute("delete from User_Tips")
-
-def drop_indexes(cursor):
-    cursor.execute("")
-
-def create_indexes(cursor):
-    cursor.execute("")
 
 class YelpTip:
     """organize check-in data"""
@@ -33,18 +28,24 @@ class YelpTip:
             self.likes = yelp_json_object['likes']
 
 def drop_indexes(cursor):
-    cursor.execute("DROP INDEX User_Tips_business_id_index ON user_tips")
-    cursor.execute("DROP INDEX User_Tips_tip_date_index ON user_tips")
-    cursor.execute("DROP INDEX User_Tips_user_id_index ON user_tips")
+    try:
+        cursor.execute("DROP INDEX User_Tips_business_id_index ON user_tips")
+        cursor.execute("DROP INDEX User_Tips_tip_date_index ON user_tips")
+        cursor.execute("DROP INDEX User_Tips_user_id_index ON user_tips")
+    except:
+        pass
 
 
 def create_indexes(cursor):
-    cursor.execute("CREATE INDEX User_Tips_business_id_index ON user_tips (business_id)")
-    cursor.execute("CREATE INDEX User_Tips_tip_date_index ON user_tips (tip_date)")
-    cursor.execute("CREATE INDEX User_Tips_user_id_index ON user_tips (user_id)")
+    try:
+        cursor.execute("CREATE INDEX User_Tips_business_id_index ON user_tips (business_id)")
+        cursor.execute("CREATE INDEX User_Tips_tip_date_index ON user_tips (tip_date)")
+        cursor.execute("CREATE INDEX User_Tips_user_id_index ON user_tips (user_id)")
+    except:
+        pass
 
 
-def parse_file(file_path):
+def parse_file(file_path, batch_size=100, how_many=-1):
     """Read in the json data set file and load into database
     :param (str) file_path :
     """
@@ -62,16 +63,30 @@ def parse_file(file_path):
     drop_indexes(cursor)
     clear_tables(cursor)
     row_count = 0
+    list_of_ytos = []
 
     print "Processing Tip File"
+    start_time = time.time()
+    update_time = start_time
     with open(file_path) as the_file:
         for a_line in the_file:
             json_object = json.loads(a_line)
-            persist_review_object(YelpTip(json_object), cursor)
+            list_of_ytos.append(YelpTip(json_object))
             row_count += 1
+            if row_count % batch_size == 0:
+                persist_list_o_tip_objects(list_of_ytos, cursor)
+                list_of_ytos=[]
             if row_count % 1000 == 0:
-                print "Up to row {} in Tips file".format(row_count)
+                total_time = (time.time() - start_time)
+                time_since_last_post = time.time() - update_time
+                update_time = time.time()
+                print "Up to row {} in Tips file.  Total Time: {}; TimeSinceLastPost:{}".format(row_count, total_time, time_since_last_post)
 
+            if how_many > 0 and row_count % how_many == 0:
+                break
+
+        #catch the stragglers
+        persist_list_o_tip_objects(list_of_ytos, cursor)
 
     print "Creating indexes"
     create_indexes(cursor)
@@ -81,8 +96,26 @@ def parse_file(file_path):
 
     print "Tip File complete.  {0} rows processed".format(row_count)
 
+def persist_list_o_tip_objects(list_o_ytos, cursor):
+    tip_data = []
+    tip_set_count = 0
+    for yto in list_o_ytos:
+        tip_data+=[yto.business_id, yto.user_id, yto.likes, yto.tip_text, yto.tip_date]
+        tip_set_count+=1
 
-def persist_review_object(yto, cursor):
+    try:
+        if tip_data > 0:
+            sql_base = "  INSERT INTO User_Tips " \
+              " (business_id, user_id, likes, tip_text, tip_date) " \
+              " values {}"
+            parameter_base = "(%s, %s, %s, %s, %s)"
+            sql = sql_base.format(", ".join([parameter_base]* tip_set_count))
+            cursor.execute(sql, tip_data)
+    except MySQLdb.Error as err:
+        cursor.connection.rollback()
+        print err
+
+def persist_tip_object(yto, cursor):
     # We know all of the attributes we can have
     # and what their types are
     # this first pass, I'm not going to try and be clever..just work my way down
@@ -97,14 +130,14 @@ def persist_review_object(yto, cursor):
               " values " \
               " (%s, %s, %s, %s, %s) "
         cursor.execute(sql, [yto.business_id, yto.user_id, yto.likes, yto.tip_text, yto.tip_date])
-
+        cursor.connection.commit()
     except MySQLdb.Error as err:
         cursor.connection.rollback()
         print err
         print "Error with business_id {0}, user_id {1}".format(yto.business_id, yto.user_id)
-        raise
 
 
 if __name__ == '__main__':
-    parse_file('C:\\Users\\matt\\GA_DataScience\\DataScienceProject\\Yelp\\yelp_academic_dataset_tip.json')
+    the_file = 'C:\\Users\\matt\\GA_DataScience\\DataScienceProject\\Yelp\\yelp_academic_dataset_tip.json'
+    parse_file(the_file, 101, 5000)
     #495108 records

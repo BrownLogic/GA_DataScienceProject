@@ -12,14 +12,21 @@ import LoadUser as LU
 
 
 def LoadAll():
-    path = '/home/ubuntu/projects/ga_yelp/yelp_data_raw/{}'
-    #path = 'C:\\Users\\matt\\GA_DataScience\\DataScienceProject\\Yelp\\{}'
+    #path = '/home/ubuntu/projects/ga_yelp/yelp_data_raw/{}'
+    path = 'C:\\Users\\matt\\GA_DataScience\\DataScienceProject\\Yelp\\{}'
+
+    #LB.parse_file(path.format('yelp_academic_dataset_business.json'),101,5000)
+    #LU.parse_file(path.format('yelp_academic_dataset_user.json'),101,5000)
+    #LR.parse_file(path.format('yelp_academic_dataset_review.json'),101,5000)
+    #LC.parse_file(path.format('yelp_academic_dataset_checkin.json'),101,5000)
+    #LT.parse_file(path.format('yelp_academic_dataset_tip.json'),101,5000)
 
     LB.parse_file(path.format('yelp_academic_dataset_business.json'))
-    LC.parse_file(path.format('yelp_academic_dataset_checkin.json'))
-    #LR.parse_file(path.format('yelp_academic_dataset_review.json'))
-    LT.parse_file(path.format('yelp_academic_dataset_tip.json'))
     LU.parse_file(path.format('yelp_academic_dataset_user.json'))
+    LR.parse_file(path.format('yelp_academic_dataset_review.json'))
+    LC.parse_file(path.format('yelp_academic_dataset_checkin.json'))
+    LT.parse_file(path.format('yelp_academic_dataset_tip.json'))
+
 
 if __name__ == '__main__':
     LoadAll()

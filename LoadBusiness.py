@@ -1,11 +1,12 @@
 """
-LoadBusiness.py:  This file is for parsing the business JSON file and loading the database
+LoadBusinessBatch.py:  This file is for parsing the business JSON file and loading the database
 Assumes that the database has been built
 """
 import json
 import collections
 import MySQLdb
 from database import login_info
+import time
 
 
 class YelpBusiness:
@@ -57,22 +58,37 @@ def clear_tables(cursor):
 
 
 def drop_indexes(cursor):
-    cursor.execute("DROP INDEX Bus_hours_day_of_week_index ON bus_hours")
-    cursor.execute("DROP INDEX Bus_Attributes_attribute_index ON bus_attributes")
-    cursor.execute("DROP INDEX Business_city_index ON business")
-    cursor.execute("DROP INDEX Business_stars_index ON business")
-    cursor.execute("DROP INDEX Business_state_index ON business")
+    try:
+        cursor.execute("DROP INDEX Bus_hours_day_of_week_index ON bus_hours")
+        cursor.execute("DROP INDEX Bus_Attributes_attribute_index ON bus_attributes")
+        cursor.execute("DROP INDEX Business_city_index ON business")
+        cursor.execute("DROP INDEX Business_stars_index ON business")
+        cursor.execute("DROP INDEX Business_state_index ON business")
+        cursor.execute("ALTER TABLE Bus_hours DROP PRIMARY KEY")
+        cursor.execute("ALTER TABLE Bus_Neighborhoods DROP PRIMARY KEY")
+        cursor.execute("ALTER TABLE Bus_Attributes DROP PRIMARY KEY")
+        cursor.execute("ALTER TABLE Bus_Categories DROP PRIMARY KEY")
+        cursor.execute("ALTER TABLE Business DROP PRIMARY KEY")
+    except:
+        pass
 
 
 def create_indexes(cursor):
-    cursor.execute("CREATE INDEX Bus_hours_day_of_week_index ON bus_hours (day_of_week)")
-    cursor.execute("CREATE INDEX Bus_Attributes_attribute_index ON bus_attributes (attribute)")
-    cursor.execute("CREATE INDEX Business_city_index ON business (city)")
-    cursor.execute("CREATE INDEX Business_stars_index ON business (stars)")
-    cursor.execute("CREATE INDEX Business_state_index ON business (state)")
+    try:
+        cursor.execute("CREATE INDEX Bus_hours_day_of_week_index ON bus_hours (day_of_week)")
+        cursor.execute("CREATE INDEX Bus_Attributes_attribute_index ON bus_attributes (attribute)")
+        cursor.execute("CREATE INDEX Business_city_index ON business (city)")
+        cursor.execute("CREATE INDEX Business_stars_index ON business (stars)")
+        cursor.execute("CREATE INDEX Business_state_index ON business (state)")
+        cursor.execute("ALTER TABLE Bus_hours ADD PRIMARY KEY (business_id, day_of_week)")
+        cursor.execute("ALTER TABLE Bus_Neighborhoods ADD PRIMARY KEY (business_id, neighborhood)")
+        cursor.execute("ALTER TABLE Bus_Attributes ADD PRIMARY KEY (business_id, attribute)")
+        cursor.execute("ALTER TABLE Bus_Categories ADD PRIMARY KEY (business_id, category)")
+        cursor.execute("ALTER TABLE Business ADD PRIMARY KEY (business_id)")
+    except:
+        pass
 
-
-def parse_file(file_path):
+def parse_file(file_path, batch_size=100, how_many=-1):
     """Read in the json data set file and load into database
     :param (str) file_path :
     """
@@ -91,15 +107,33 @@ def parse_file(file_path):
     clear_tables(cursor)
 
     row_count = 0
-    print "Processing Business File "
+    print "Processing Business File the batched way, batch size = {}".format(batch_size)
+
+    start_time = time.time()
+    update_time = start_time
+    list_of_ybos = []
     with open(file_path) as the_file:
         for a_line in the_file:
             json_object = json.loads(a_line)
-            persist_business_object(YelpBusiness(json_object), cursor)
-
+            list_of_ybos.append(YelpBusiness(json_object))
             row_count += 1
+            if row_count % batch_size == 0:
+                persist_list_o_business_objects(list_of_ybos,cursor)
+                list_of_ybos=[]
+
             if row_count % 1000 == 0:
-                print "Up to row {} in Business file".format(row_count)
+                total_time = (time.time() - start_time)
+                time_since_last_post = time.time() - update_time
+                update_time = time.time()
+                print "Up to row {} in Business file.  Total Time: {}; TimeSinceLastPost:{}".format(row_count, total_time, time_since_last_post)
+
+            if how_many > 0 and row_count % how_many == 0:
+                break
+
+        #catch the stragglers
+        persist_list_o_business_objects(list_of_ybos,cursor)
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
     print "Creating indexes"
     create_indexes(cursor)
@@ -115,15 +149,94 @@ def flatten_attributes(attributes):
     # some of the elements will *also* be dictionaries
     # this function flattens the result into a flattened reference
     ret = {}
-
+    good_for_kids_count = 0
     for k, v in attributes.iteritems():
         if isinstance(v, collections.MutableMapping):
             for k1, v1 in v.iteritems():
                 ret["{0}.{1}".format(k,k1)] = v1
         else:
-            ret[k] = v
+            if k != 'Good for Kids': #eliminate this case.  there is another just like it.
+                ret[k] = v
 
     return ret
+
+def persist_list_o_business_objects(list_o_ybos, cursor):
+    #Similar to the others except that it builds up the sets
+    business_data = []
+    business_set_count = 0
+    bus_attributes_data = []
+    bus_attributes_set_count = 0
+    bus_categories_data = []
+    bus_categories_set_count = 0
+    bus_neighborhoods_data = []
+    bus_neighborhoods_set_count = 0
+    bus_hours_data = []
+    bus_hours_set_count = 0
+    for ybo in list_o_ybos:
+        business_data+=[ybo.business_id, ybo.type, ybo.name, ybo.city, ybo.state,
+                                ybo.full_address,
+                                ybo.latitude, ybo.longitude, ybo.stars, ybo.review_count, ybo.open]
+        business_set_count +=1
+        for attribute, attribute_value in ybo.attributes.iteritems():
+            bus_attributes_data+=[ybo.business_id, attribute, attribute_value]
+            bus_attributes_set_count +=1
+        for cat in ybo.categories:
+            bus_categories_data+=[ybo.business_id, cat]
+            bus_categories_set_count += 1
+        for hood in ybo.neighborhoods:
+            bus_neighborhoods_data+=[ybo.business_id, hood]
+            bus_neighborhoods_set_count += 1
+        for day, times in ybo.hours.iteritems():
+            bus_hours_data+=[ybo.business_id, day, times['open'], times['close']]
+            bus_hours_set_count += 1
+
+    try:
+        if business_set_count > 0:
+            sql_base = " INSERT INTO business " \
+                  " (business_id, type, name, city, state, full_address, " \
+                  " latitude, longitude, stars, review_count, open) " \
+                  " values {}"
+            parameter_base ="(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            sql = sql_base.format(", ".join([parameter_base]*business_set_count))
+            cursor.execute(sql, business_data)
+
+        if bus_attributes_set_count > 0:
+            sql_base = " INSERT INTO bus_attributes " \
+                      " (business_id, attribute, attribute_value) " \
+                      " values {}"
+            parameter_base = "(%s, %s, %s)"
+            sql = sql_base.format(", ".join([parameter_base]*bus_attributes_set_count))
+            cursor.execute(sql, bus_attributes_data)
+
+        if bus_categories_set_count > 0:
+            sql_base = " INSERT INTO bus_categories " \
+                  " (business_id, category) " \
+                  " values {}"
+            parameter_base = "(%s, %s)"
+            sql = sql_base.format(", ".join([parameter_base]*bus_categories_set_count))
+            cursor.execute(sql, bus_categories_data)
+
+
+        if bus_neighborhoods_set_count > 0:
+            sql_base = " INSERT INTO bus_neighborhoods " \
+                  " (business_id, neighborhood) " \
+                  " values {}"
+            parameter_base = "(%s, %s)"
+            sql = sql_base.format(", ".join([parameter_base]*bus_neighborhoods_set_count))
+            cursor.execute(sql, bus_neighborhoods_data)
+
+        if bus_hours_set_count > 0:
+            sql_base = " INSERT INTO bus_hours " \
+                  " (business_id, day_of_week, open_time, close_time) " \
+                  " VALUES {}"
+            parameter_base = "(%s, %s, %s, %s)"
+            sql = sql_base.format(", ".join([parameter_base]*bus_hours_set_count ))
+            cursor.execute(sql, bus_hours_data)
+
+        cursor.connection.commit()
+    except MySQLdb.Error as err:
+        cursor.connection.rollback()
+        print err
 
 def persist_business_object(ybo, cursor):
     # We know all of the attributes we can have
@@ -182,7 +295,7 @@ def persist_business_object(ybo, cursor):
         print "Error with business_id {0}".format(ybo.business_id)
         raise
 
-
 if __name__ == '__main__':
-    parse_file('C:\\Users\\matt\\GA_DataScience\\DataScienceProject\\Yelp\\yelp_academic_dataset_business.json')
+    the_file = 'C:\\Users\\matt\\GA_DataScience\\DataScienceProject\\Yelp\\yelp_academic_dataset_business.json'
+    parse_file(the_file, 101, 5000)
     #61184 records

@@ -5,7 +5,7 @@ Assumes that the database has been built
 import json
 import MySQLdb
 from database import login_info
-
+import time
 
 class YelpCheckin:
     """organize check-in data"""
@@ -25,14 +25,22 @@ def clear_tables(cursor):
     cursor.execute("delete from Checkins")
 
 def drop_indexes(cursor):
-    cursor.execute("DROP INDEX Checkins_checkin_info_index ON checkins")
+    try:
+        cursor.execute("DROP INDEX Checkins_checkin_info_index ON checkins")
+        cursor.execute("ALTER TABLE Checkins DROP PRIMARY KEY")
+    except:
+        pass
 
 
 def create_indexes(cursor):
-    cursor.execute("CREATE INDEX Checkins_checkin_info_index ON checkins (checkin_info)")
+    try:
+        cursor.execute("CREATE INDEX Checkins_checkin_info_index ON checkins (checkin_info)")
+        cursor.execute("ALTER TABLE Checkins ADD PRIMARY KEY (business_id, checkin_info)")
+    except:
+        pass
 
 
-def parse_file(file_path):
+def parse_file(file_path, batch_size=100, how_many=-1):
     """Read in the json data set file and load into database
     :param (str) file_path :
     """
@@ -50,16 +58,32 @@ def parse_file(file_path):
     drop_indexes(cursor)
     clear_tables(cursor)
     row_count = 0
+    list_of_ycos = []
 
     print "Processing Check-in File "
 
+    start_time = time.time()
+    update_time = start_time
     with open(file_path) as the_file:
         for a_line in the_file:
             json_object = json.loads(a_line)
-            persist_checkin_object(YelpCheckin(json_object), cursor)
+            list_of_ycos.append(YelpCheckin(json_object))
             row_count += 1
+            if row_count % batch_size == 0:
+                persist_list_o_checkin_objects(list_of_ycos, cursor)
+                list_of_ycos=[]
+
             if row_count % 1000 == 0:
-                print "Up to row {} in Check-in file".format(row_count)
+                total_time = (time.time() - start_time)
+                time_since_last_post = time.time() - update_time
+                update_time = time.time()
+                print "Up to row {} in Check-in.  Total Time: {}; TimeSinceLastPost:{}".format(row_count, total_time, time_since_last_post)
+
+            if how_many > 0 and row_count % how_many == 0:
+                break
+        #catch the stragglers
+        persist_list_o_checkin_objects(list_of_ycos,cursor)
+
 
     print "Creating indexes"
     create_indexes(cursor)
@@ -68,6 +92,28 @@ def parse_file(file_path):
     db.close()
 
     print "Check-In File Complete.  {0} rows processed ".format(row_count)
+
+def persist_list_o_checkin_objects(list_o_ycos, cursor):
+    checkin_data = []
+    checkin_set_count = 0
+    for yco in list_o_ycos:
+        for checkin_info, checkin_count in yco.checkin.iteritems():
+            checkin_data+=[yco.business_id, checkin_info, checkin_count]
+            checkin_set_count+=1
+    try:
+        if checkin_set_count > 0:
+            sql_base = "INSERT INTO Checkins " \
+                  " (business_id, checkin_info, checkin_count) " \
+                  " values {}"
+            parameter_base = "(%s, %s, %s)"
+            sql = sql_base.format(", ".join([parameter_base]* checkin_set_count))
+            cursor.execute(sql, checkin_data)
+
+        cursor.connection.commit()
+
+    except MySQLdb.Error as err:
+        cursor.connection.rollback()
+        print err
 
 def persist_checkin_object(yco, cursor):
     # We know all of the attributes we can have
@@ -87,13 +133,15 @@ def persist_checkin_object(yco, cursor):
                   " (%s, %s, %s) "
             cursor.execute(sql, [yco.business_id, checkin_info, checkin_count])
 
+        cursor.connection.commit()
     except MySQLdb.Error as err:
         cursor.connection.rollback()
         print err
         print "Error with business_id {0}".format(yco.business_id)
-        raise
+
 
 
 if __name__ == '__main__':
-    parse_file('C:\\Users\\matt\\GA_DataScience\\DataScienceProject\\Yelp\\yelp_academic_dataset_checkin.json')
+    the_file = 'C:\\Users\\matt\\GA_DataScience\\DataScienceProject\\Yelp\\yelp_academic_dataset_checkin.json'
+    parse_file(the_file, 101, 5000)
     #45166 records
