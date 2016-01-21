@@ -50,7 +50,7 @@ class YelpBusiness:
 
 
 def clear_tables(cursor):
-    cursor.execute("delete from Bus_hours")
+    cursor.execute("delete from Bus_Hours")
     cursor.execute("delete from Bus_Neighborhoods")
     cursor.execute("delete from Bus_Attributes")
     cursor.execute("delete from Bus_Categories")
@@ -64,7 +64,7 @@ def drop_indexes(cursor):
         cursor.execute("DROP INDEX Business_city_index ON Business")
         cursor.execute("DROP INDEX Business_stars_index ON Business")
         cursor.execute("DROP INDEX Business_state_index ON Business")
-        cursor.execute("ALTER TABLE Bus_hours DROP PRIMARY KEY")
+        cursor.execute("ALTER TABLE Bus_Hours DROP PRIMARY KEY")
         cursor.execute("ALTER TABLE Bus_Neighborhoods DROP PRIMARY KEY")
         cursor.execute("ALTER TABLE Bus_Attributes DROP PRIMARY KEY")
         cursor.execute("ALTER TABLE Bus_Categories DROP PRIMARY KEY")
