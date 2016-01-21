@@ -59,11 +59,11 @@ def clear_tables(cursor):
 
 def drop_indexes(cursor):
     try:
-        cursor.execute("DROP INDEX Bus_hours_day_of_week_index ON bus_hours")
-        cursor.execute("DROP INDEX Bus_Attributes_attribute_index ON bus_attributes")
-        cursor.execute("DROP INDEX Business_city_index ON business")
-        cursor.execute("DROP INDEX Business_stars_index ON business")
-        cursor.execute("DROP INDEX Business_state_index ON business")
+        cursor.execute("DROP INDEX Bus_Hours_day_of_week_index ON Bus_Hours")
+        cursor.execute("DROP INDEX Bus_Attributes_attribute_index ON Bus_Attributes")
+        cursor.execute("DROP INDEX Business_city_index ON Business")
+        cursor.execute("DROP INDEX Business_stars_index ON Business")
+        cursor.execute("DROP INDEX Business_state_index ON Business")
         cursor.execute("ALTER TABLE Bus_hours DROP PRIMARY KEY")
         cursor.execute("ALTER TABLE Bus_Neighborhoods DROP PRIMARY KEY")
         cursor.execute("ALTER TABLE Bus_Attributes DROP PRIMARY KEY")
@@ -75,12 +75,12 @@ def drop_indexes(cursor):
 
 def create_indexes(cursor):
     try:
-        cursor.execute("CREATE INDEX Bus_hours_day_of_week_index ON bus_hours (day_of_week)")
-        cursor.execute("CREATE INDEX Bus_Attributes_attribute_index ON bus_attributes (attribute)")
+        cursor.execute("CREATE INDEX Bus_Hours_day_of_week_index ON Bus_Hours (day_of_week)")
+        cursor.execute("CREATE INDEX Bus_Attributes_attribute_index ON Bus_Attributes (attribute)")
         cursor.execute("CREATE INDEX Business_city_index ON Business (city)")
         cursor.execute("CREATE INDEX Business_stars_index ON Business (stars)")
         cursor.execute("CREATE INDEX Business_state_index ON Business (state)")
-        cursor.execute("ALTER TABLE Bus_hours ADD PRIMARY KEY (business_id, day_of_week)")
+        cursor.execute("ALTER TABLE Bus_Hours ADD PRIMARY KEY (business_id, day_of_week)")
         cursor.execute("ALTER TABLE Bus_Neighborhoods ADD PRIMARY KEY (business_id, neighborhood)")
         cursor.execute("ALTER TABLE Bus_Attributes ADD PRIMARY KEY (business_id, attribute)")
         cursor.execute("ALTER TABLE Bus_Categories ADD PRIMARY KEY (business_id, category)")
@@ -282,7 +282,7 @@ def persist_business_object(ybo, cursor):
         # Bus_Hours
         # This one is a bit more squirrely. The 'hours' is a dictionary itself
         for day, times in ybo.hours.iteritems():
-            sql = " INSERT INTO Bus_hours " \
+            sql = " INSERT INTO Bus_Hours " \
                   " (business_id, day_of_week, open_time, close_time) " \
                   " VALUES " \
                   " (%s, %s, %s, %s) "
