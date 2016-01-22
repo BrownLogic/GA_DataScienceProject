@@ -29,6 +29,8 @@ logging.basicConfig(level=logging.INFO,
 def get_the_data(num_of_records):
     #Returns review dataframe
     con = MySQLdb.connect(**login_info)
+    con.set_character_set('utf8')
+
     ret = pd.read_sql_query('select stars, review_text from Review order by rand() limit {0}'.format(num_of_records), con=con)
     con.close()
     ret['review_type'] = ret['stars'].map(lambda x: 'unfavorable' if x <3 else 'favorable')
