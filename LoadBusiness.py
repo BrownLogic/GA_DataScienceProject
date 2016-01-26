@@ -1,5 +1,5 @@
 """
-LoadBusinessBatch.py:  This file is for parsing the business JSON file and loading the database
+LoadBusiness.py:  This file is for parsing the business JSON file and loading the database
 Assumes that the database has been built
 """
 import json
