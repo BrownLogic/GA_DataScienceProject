@@ -7,8 +7,9 @@ import MySQLdb
 from database import login_info
 import time
 
+
 class YelpUser:
-    """organize user data"""
+    """Organize data from User JSON file"""
 
     def __init__(self, yelp_json_object):
         if 'user_id' in yelp_json_object:
@@ -32,7 +33,12 @@ class YelpUser:
         if 'compliments' in yelp_json_object:
             self.compliments = yelp_json_object['compliments']
 
+
 def clear_tables(cursor):
+    """
+    Clears all of the tables that will be populated.
+    :param cursor: Open MySQLdb cursor
+    """
     try:
         cursor.execute("delete from User_Votes")
         cursor.execute("delete from User_Friends")
@@ -42,7 +48,12 @@ def clear_tables(cursor):
     except:
         pass
 
+
 def drop_indexes(cursor):
+    """
+    Drops indexes from all of the tables that will be populated
+    :param cursor: Open MySQLdb cursor
+    """
     try:
         cursor.execute("DROP INDEX User_Compliments_compliment_type_index ON user_compliments")
         cursor.execute("DROP INDEX User_Compliments_user_id_index ON user_compliments")
@@ -62,6 +73,10 @@ def drop_indexes(cursor):
 
 
 def create_indexes(cursor):
+    """
+    Creates indexes on all of the tables that will be (have been) populated
+    :param cursor: Open MySQLdb cursor
+    """
     try:
         cursor.execute("CREATE INDEX User_Compliments_compliment_type_index ON user_compliments (compliment_type)")
         cursor.execute("CREATE INDEX User_Compliments_user_id_index ON user_compliments (user_id)")
@@ -78,16 +93,23 @@ def create_indexes(cursor):
     except:
         pass
 
+
 def parse_file(file_path, batch_size=100, how_many=-1):
-    """Read in the json data set file and load into database
-    :param (str) file_path :
+    """
+    Read in the json data set file and load into database
+    :param file_path: Location of the file
+    :param batch_size: Indicates how many records to parse before persisting
+        to database.  I used this to tweak performance.
+    :param how_many: Indicates how many records to parse for ending the function.
+        This allows for partially loading a file (testing and debugging)
     """
     db = MySQLdb.connect(**login_info)
-    db.set_character_set('utf8') #From http://stackoverflow.com/questions/3942888/unicodeencodeerror-latin-1-codec-cant-encode-character
+    # From http://stackoverflow.com/questions/3942888/unicodeencodeerror-latin-1-codec-cant-encode-character
+    db.set_character_set('utf8')
 
     cursor = db.cursor()
 
-    #From http://stackoverflow.com/questions/3942888/unicodeencodeerror-latin-1-codec-cant-encode-character
+    # From http://stackoverflow.com/questions/3942888/unicodeencodeerror-latin-1-codec-cant-encode-character
     cursor.execute('SET NAMES utf8;')
     cursor.execute('SET CHARACTER SET utf8;')
     cursor.execute('SET character_set_connection=utf8;')
@@ -109,19 +131,20 @@ def parse_file(file_path, batch_size=100, how_many=-1):
             row_count += 1
             if row_count % batch_size == 0:
                 persist_list_o_user_objects(list_of_yuos, cursor)
-                list_of_yuos=[]
+                list_of_yuos = []
 
             if row_count % 1000 == 0:
                 total_time = (time.time() - start_time)
                 time_since_last_post = time.time() - update_time
                 update_time = time.time()
-                print "Up to row {:} in User file.  Total Time: {:.4g}; TimeSinceLastPost:{:.4g}".format(row_count, total_time, time_since_last_post)
+                print "Up to row {:} in User file.  Total Time: {:.4g}; TimeSinceLastPost:{:.4g}"\
+                    .format(row_count, total_time, time_since_last_post)
 
             if how_many > 0 and row_count % how_many == 0:
                 break
 
-        #catch the stragglers
-        persist_list_o_user_objects(list_of_yuos,cursor)
+        # catch the stragglers
+        persist_list_o_user_objects(list_of_yuos, cursor)
 
     print "Creating indexes"
     create_indexes(cursor)
@@ -133,6 +156,14 @@ def parse_file(file_path, batch_size=100, how_many=-1):
 
 
 def persist_list_o_user_objects(list_o_yuos, cursor):
+    """
+    This function persists a list of YelpUser objects.  Original implementations
+    persisted each one individually, which performed slowly.
+    This one accepts a collection and takes advantage of parameterized queries to
+    persist in batches
+    :param list_o_yuos: List of YelpUser objects
+    :param cursor: Open MySQLdb cursor
+    """
     user_data = []
     user_set_count = 0
     user_compliments_data = []
@@ -144,55 +175,55 @@ def persist_list_o_user_objects(list_o_yuos, cursor):
     user_votes_data = []
     user_votes_set_count = 0
     for yuo in list_o_yuos:
-        user_data+=[yuo.user_id, yuo.name, yuo.review_count, yuo.average_stars, yuo.yelping_since, yuo.fans]
-        user_set_count+=1
+        user_data += [yuo.user_id, yuo.name, yuo.review_count, yuo.average_stars, yuo.yelping_since, yuo.fans]
+        user_set_count += 1
         for comp_type, comp_count in yuo.compliments.iteritems():
-            user_compliments_data+=[yuo.user_id, comp_type, comp_count]
-            user_compliments_set_count+=1
+            user_compliments_data += [yuo.user_id, comp_type, comp_count]
+            user_compliments_set_count += 1
         for years in yuo.elite:
-            user_elite_data+=[yuo.user_id, years]
-            user_elite_set_count+=1
+            user_elite_data += [yuo.user_id, years]
+            user_elite_set_count += 1
         for friend in yuo.friends:
-            user_friends_data+=[yuo.user_id, friend]
-            user_friends_set_count+=1
+            user_friends_data += [yuo.user_id, friend]
+            user_friends_set_count += 1
         for vote_type, vote_count in yuo.votes.iteritems():
-            user_votes_data+=[yuo.user_id, vote_type, vote_count]
-            user_votes_set_count+=1
+            user_votes_data += [yuo.user_id, vote_type, vote_count]
+            user_votes_set_count += 1
     try:
         if user_set_count > 0:
             sql_base = " INSERT INTO User " \
-              " (user_id, name, review_count, average_stars, yelping_since, fans)" \
-              " values {}"
+                       " (user_id, name, review_count, average_stars, yelping_since, fans)" \
+                       " VALUES {}"
             parameter_base = "(%s, %s, %s, %s, %s, %s)"
-            sql = sql_base.format(", ".join([parameter_base]* user_set_count))
+            sql = sql_base.format(", ".join([parameter_base] * user_set_count))
             cursor.execute(sql, user_data)
         if user_compliments_set_count > 0:
             sql_base = "INSERT INTO User_Compliments " \
-                  " (user_id, compliment_type, compliment_count) " \
-                  " values {}"
+                       " (user_id, compliment_type, compliment_count) " \
+                       " VALUES {}"
             parameter_base = "(%s, %s, %s)"
-            sql = sql_base.format(", ".join([parameter_base]* user_compliments_set_count))
+            sql = sql_base.format(", ".join([parameter_base] * user_compliments_set_count))
             cursor.execute(sql, user_compliments_data)
         if user_elite_set_count > 0:
             sql_base = "INSERT INTO User_Elite " \
-                  " (user_id, years_elite) " \
-                  " values {}"
+                       " (user_id, years_elite) " \
+                       " VALUES {}"
             parameter_base = "(%s, %s)"
-            sql = sql_base.format(", ".join([parameter_base]* user_elite_set_count))
+            sql = sql_base.format(", ".join([parameter_base] * user_elite_set_count))
             cursor.execute(sql, user_elite_data)
         if user_friends_set_count > 0:
             sql_base = "INSERT INTO User_Friends " \
-                  " (user_id, friends) " \
-                  " values {}"
+                       " (user_id, friends) " \
+                       " VALUES {}"
             parameter_base = "(%s, %s)"
-            sql = sql_base.format(", ".join([parameter_base]* user_friends_set_count))
+            sql = sql_base.format(", ".join([parameter_base] * user_friends_set_count))
             cursor.execute(sql, user_friends_data)
         if user_votes_set_count > 0:
             sql_base = "INSERT INTO User_Votes " \
-                  " (user_id, vote_type, vote_count) " \
-                  " values {}"
+                       " (user_id, vote_type, vote_count) " \
+                       " VALUES {}"
             parameter_base = "(%s, %s, %s)"
-            sql = sql_base.format(", ".join([parameter_base]* user_votes_set_count))
+            sql = sql_base.format(", ".join([parameter_base] * user_votes_set_count))
             cursor.execute(sql, user_votes_data)
 
         cursor.connection.commit()
@@ -201,7 +232,8 @@ def persist_list_o_user_objects(list_o_yuos, cursor):
         cursor.connection.rollback()
         print err
 
+
 if __name__ == '__main__':
     the_file = 'C:\\Users\\matt\\GA_DataScience\\DataScienceProject\\Yelp\\yelp_academic_dataset_user.json'
     parse_file(the_file, 101, 5000)
-    #366715 records
+    # 366715 records
