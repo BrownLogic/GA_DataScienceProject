@@ -64,3 +64,9 @@ database.py
 
 # windows shortcut files
 *.lnk
+
+# PyCharm
+.idea/
+
+# Pickled Objects
+*.pickle
