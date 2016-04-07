@@ -585,515 +585,702 @@ friends</columns>
       <table id="21" parent="1" name="model_runs"/>
       <table id="22" parent="1" name="model_scores"/>
       <table id="23" parent="1" name="model_confusion_matrix"/>
-      <view id="24" parent="1" name="vw_restaurant_categories">
+      <table id="24" parent="1" name="state_to_country"/>
+      <view id="25" parent="1" name="vw_restaurant_categories">
         <comment>VIEW</comment>
       </view>
-      <column id="25" parent="2" name="business_id">
+      <view id="26" parent="1" name="vw_confusion_matrix">
+        <comment>VIEW</comment>
+      </view>
+      <view id="27" parent="1" name="vw_runs_with_scores">
+        <comment>VIEW</comment>
+      </view>
+      <view id="28" parent="1" name="vw_restaurants_in_usa">
+        <comment>VIEW</comment>
+      </view>
+      <view id="29" parent="1" name="vw_business">
+        <comment>VIEW</comment>
+      </view>
+      <view id="30" parent="1" name="vw_review_with_business_info">
+        <comment>VIEW</comment>
+      </view>
+      <column id="31" parent="2" name="business_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="26" parent="2" name="attribute">
+      <column id="32" parent="2" name="attribute">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="27" parent="2" name="attribute_value">
+      <column id="33" parent="2" name="attribute_value">
         <data-type>varchar(250)</data-type>
       </column>
-      <index id="28" parent="2" name="Bus_Attributes_attribute_index">
+      <index id="34" parent="2" name="Bus_Attributes_attribute_index">
         <columns>attribute</columns>
         <desc-columns></desc-columns>
       </index>
-      <key id="29" parent="2" name="PRIMARY">
+      <key id="35" parent="2" name="PRIMARY">
         <columns>business_id
 attribute</columns>
         <primary>1</primary>
       </key>
-      <column id="30" parent="3" name="business_id">
+      <column id="36" parent="3" name="business_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="31" parent="3" name="category">
+      <column id="37" parent="3" name="category">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <key id="32" parent="3" name="PRIMARY">
+      <key id="38" parent="3" name="PRIMARY">
         <columns>business_id
 category</columns>
         <primary>1</primary>
       </key>
-      <column id="33" parent="4" name="business_id">
+      <column id="39" parent="4" name="business_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="34" parent="4" name="day_of_week">
+      <column id="40" parent="4" name="day_of_week">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="35" parent="4" name="open_time">
+      <column id="41" parent="4" name="open_time">
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="36" parent="4" name="close_time">
+      <column id="42" parent="4" name="close_time">
         <data-type>varchar(250)</data-type>
       </column>
-      <index id="37" parent="4" name="Bus_hours_day_of_week_index">
+      <index id="43" parent="4" name="Bus_hours_day_of_week_index">
         <columns>day_of_week</columns>
         <desc-columns></desc-columns>
       </index>
-      <key id="38" parent="4" name="PRIMARY">
+      <key id="44" parent="4" name="PRIMARY">
         <columns>business_id
 day_of_week</columns>
         <primary>1</primary>
       </key>
-      <column id="39" parent="5" name="business_id">
+      <column id="45" parent="5" name="business_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="40" parent="5" name="neighborhood">
+      <column id="46" parent="5" name="neighborhood">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <key id="41" parent="5" name="PRIMARY">
+      <key id="47" parent="5" name="PRIMARY">
         <columns>business_id
 neighborhood</columns>
         <primary>1</primary>
       </key>
-      <column id="42" parent="6" name="type">
+      <column id="48" parent="6" name="type">
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="43" parent="6" name="business_id">
+      <column id="49" parent="6" name="business_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="44" parent="6" name="name">
+      <column id="50" parent="6" name="name">
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="45" parent="6" name="city">
+      <column id="51" parent="6" name="city">
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="46" parent="6" name="state">
+      <column id="52" parent="6" name="state">
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="47" parent="6" name="latitude">
+      <column id="53" parent="6" name="latitude">
         <data-type>decimal(20,16)</data-type>
       </column>
-      <column id="48" parent="6" name="longitude">
+      <column id="54" parent="6" name="longitude">
         <data-type>decimal(20,16)</data-type>
       </column>
-      <column id="49" parent="6" name="stars">
+      <column id="55" parent="6" name="stars">
         <data-type>decimal(10,5)</data-type>
       </column>
-      <column id="50" parent="6" name="review_count">
+      <column id="56" parent="6" name="review_count">
         <data-type>int(11)</data-type>
       </column>
-      <column id="51" parent="6" name="open">
+      <column id="57" parent="6" name="open">
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="52" parent="6" name="full_address">
+      <column id="58" parent="6" name="full_address">
         <data-type>varchar(250)</data-type>
       </column>
-      <index id="53" parent="6" name="Business_city_index">
+      <index id="59" parent="6" name="Business_city_index">
         <columns>city</columns>
         <desc-columns></desc-columns>
       </index>
-      <index id="54" parent="6" name="Business_stars_index">
+      <index id="60" parent="6" name="Business_stars_index">
         <columns>stars</columns>
         <desc-columns></desc-columns>
       </index>
-      <index id="55" parent="6" name="Business_state_index">
+      <index id="61" parent="6" name="Business_state_index">
         <columns>state</columns>
         <desc-columns></desc-columns>
       </index>
-      <key id="56" parent="6" name="PRIMARY">
+      <key id="62" parent="6" name="PRIMARY">
         <columns>business_id</columns>
         <primary>1</primary>
       </key>
-      <column id="57" parent="7" name="business_id">
+      <column id="63" parent="7" name="business_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="58" parent="7" name="checkin_info">
+      <column id="64" parent="7" name="checkin_info">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="59" parent="7" name="checkin_count">
+      <column id="65" parent="7" name="checkin_count">
         <data-type>int(11)</data-type>
       </column>
-      <index id="60" parent="7" name="Checkins_checkin_info_index">
+      <index id="66" parent="7" name="Checkins_checkin_info_index">
         <columns>checkin_info</columns>
         <desc-columns></desc-columns>
       </index>
-      <key id="61" parent="7" name="PRIMARY">
+      <key id="67" parent="7" name="PRIMARY">
         <columns>business_id
 checkin_info</columns>
         <primary>1</primary>
       </key>
-      <column id="62" parent="8" name="review_id">
+      <column id="68" parent="8" name="review_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="63" parent="8" name="business_id">
+      <column id="69" parent="8" name="business_id">
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="64" parent="8" name="user_id">
+      <column id="70" parent="8" name="user_id">
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="65" parent="8" name="stars">
+      <column id="71" parent="8" name="stars">
         <data-type>decimal(10,5)</data-type>
       </column>
-      <column id="66" parent="8" name="review_text">
+      <column id="72" parent="8" name="review_text">
         <data-type>varchar(5000)</data-type>
       </column>
-      <column id="67" parent="8" name="review_date">
+      <column id="73" parent="8" name="review_date">
         <data-type>varchar(250)</data-type>
       </column>
-      <index id="68" parent="8" name="Review_Business_id_index">
+      <index id="74" parent="8" name="Review_Business_id_index">
         <columns>business_id</columns>
         <desc-columns></desc-columns>
       </index>
-      <index id="69" parent="8" name="Review_date_index">
+      <index id="75" parent="8" name="Review_date_index">
         <columns>review_date</columns>
         <desc-columns></desc-columns>
       </index>
-      <index id="70" parent="8" name="Review_stars_index">
+      <index id="76" parent="8" name="Review_stars_index">
         <columns>stars</columns>
         <desc-columns></desc-columns>
       </index>
-      <index id="71" parent="8" name="Review_user_id_index">
+      <index id="77" parent="8" name="Review_user_id_index">
         <columns>user_id</columns>
         <desc-columns></desc-columns>
       </index>
-      <key id="72" parent="8" name="PRIMARY">
+      <key id="78" parent="8" name="PRIMARY">
         <columns>review_id</columns>
         <primary>1</primary>
       </key>
-      <column id="73" parent="9" name="review_id">
+      <column id="79" parent="9" name="review_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="74" parent="9" name="business_id">
+      <column id="80" parent="9" name="business_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="75" parent="9" name="user_id">
+      <column id="81" parent="9" name="user_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="76" parent="9" name="vote_type">
+      <column id="82" parent="9" name="vote_type">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="77" parent="9" name="vote_count">
+      <column id="83" parent="9" name="vote_count">
         <data-type>int(11)</data-type>
       </column>
-      <index id="78" parent="9" name="Review_Votes_Business_id_index">
+      <index id="84" parent="9" name="Review_Votes_Business_id_index">
         <columns>business_id</columns>
         <desc-columns></desc-columns>
       </index>
-      <index id="79" parent="9" name="Review_Votes_User_id_index">
+      <index id="85" parent="9" name="Review_Votes_User_id_index">
         <columns>user_id</columns>
         <desc-columns></desc-columns>
       </index>
-      <index id="80" parent="9" name="Review_Votes_vote_type_index">
+      <index id="86" parent="9" name="Review_Votes_vote_type_index">
         <columns>vote_type</columns>
         <desc-columns></desc-columns>
       </index>
-      <key id="81" parent="9" name="PRIMARY">
+      <key id="87" parent="9" name="PRIMARY">
         <columns>review_id
 business_id
 user_id
 vote_type</columns>
         <primary>1</primary>
       </key>
-      <column id="82" parent="10" name="user_id">
+      <column id="88" parent="10" name="user_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="83" parent="10" name="name">
+      <column id="89" parent="10" name="name">
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="84" parent="10" name="review_count">
+      <column id="90" parent="10" name="review_count">
         <data-type>int(11)</data-type>
       </column>
-      <column id="85" parent="10" name="average_stars">
+      <column id="91" parent="10" name="average_stars">
         <data-type>decimal(10,5)</data-type>
       </column>
-      <column id="86" parent="10" name="yelping_since">
+      <column id="92" parent="10" name="yelping_since">
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="87" parent="10" name="fans">
+      <column id="93" parent="10" name="fans">
         <data-type>int(11)</data-type>
       </column>
-      <key id="88" parent="10" name="PRIMARY">
+      <key id="94" parent="10" name="PRIMARY">
         <columns>user_id</columns>
         <primary>1</primary>
       </key>
-      <column id="89" parent="11" name="user_id">
+      <column id="95" parent="11" name="user_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="90" parent="11" name="compliment_type">
+      <column id="96" parent="11" name="compliment_type">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="91" parent="11" name="compliment_count">
+      <column id="97" parent="11" name="compliment_count">
         <data-type>int(11)</data-type>
       </column>
-      <index id="92" parent="11" name="User_Compliments_compliment_type_index">
+      <index id="98" parent="11" name="User_Compliments_compliment_type_index">
         <columns>compliment_type</columns>
         <desc-columns></desc-columns>
       </index>
-      <index id="93" parent="11" name="User_Compliments_user_id_index">
+      <index id="99" parent="11" name="User_Compliments_user_id_index">
         <columns>user_id</columns>
         <desc-columns></desc-columns>
       </index>
-      <key id="94" parent="11" name="PRIMARY">
+      <key id="100" parent="11" name="PRIMARY">
         <columns>user_id
 compliment_type</columns>
         <primary>1</primary>
       </key>
-      <column id="95" parent="12" name="user_id">
+      <column id="101" parent="12" name="user_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="96" parent="12" name="years_elite">
+      <column id="102" parent="12" name="years_elite">
         <mandatory>1</mandatory>
         <data-type>int(11)</data-type>
       </column>
-      <index id="97" parent="12" name="User_Elite_user_id_index">
+      <index id="103" parent="12" name="User_Elite_user_id_index">
         <columns>user_id</columns>
         <desc-columns></desc-columns>
       </index>
-      <key id="98" parent="12" name="PRIMARY">
+      <key id="104" parent="12" name="PRIMARY">
         <columns>user_id
 years_elite</columns>
         <primary>1</primary>
       </key>
-      <column id="99" parent="13" name="user_id">
+      <column id="105" parent="13" name="user_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="100" parent="13" name="friends">
+      <column id="106" parent="13" name="friends">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <index id="101" parent="13" name="User_Friends_friends_index">
+      <index id="107" parent="13" name="User_Friends_friends_index">
         <columns>friends</columns>
         <desc-columns></desc-columns>
       </index>
-      <index id="102" parent="13" name="User_Friends_user_id_index">
+      <index id="108" parent="13" name="User_Friends_user_id_index">
         <columns>user_id</columns>
         <desc-columns></desc-columns>
       </index>
-      <key id="103" parent="13" name="PRIMARY">
+      <key id="109" parent="13" name="PRIMARY">
         <columns>user_id
 friends</columns>
         <primary>1</primary>
       </key>
-      <column id="104" parent="14" name="user_id">
+      <column id="110" parent="14" name="user_id">
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="105" parent="14" name="business_id">
+      <column id="111" parent="14" name="business_id">
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="106" parent="14" name="likes">
+      <column id="112" parent="14" name="likes">
         <data-type>int(11)</data-type>
       </column>
-      <column id="107" parent="14" name="tip_date">
+      <column id="113" parent="14" name="tip_date">
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="108" parent="14" name="tip_text">
+      <column id="114" parent="14" name="tip_text">
         <data-type>varchar(5000)</data-type>
       </column>
-      <index id="109" parent="14" name="User_Tips_business_id_index">
+      <index id="115" parent="14" name="User_Tips_business_id_index">
         <columns>business_id</columns>
         <desc-columns></desc-columns>
       </index>
-      <index id="110" parent="14" name="User_Tips_tip_date_index">
+      <index id="116" parent="14" name="User_Tips_tip_date_index">
         <columns>tip_date</columns>
         <desc-columns></desc-columns>
       </index>
-      <index id="111" parent="14" name="User_Tips_user_id_index">
+      <index id="117" parent="14" name="User_Tips_user_id_index">
         <columns>user_id</columns>
         <desc-columns></desc-columns>
       </index>
-      <column id="112" parent="15" name="user_id">
+      <column id="118" parent="15" name="user_id">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="113" parent="15" name="vote_type">
+      <column id="119" parent="15" name="vote_type">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="114" parent="15" name="vote_count">
+      <column id="120" parent="15" name="vote_count">
         <data-type>int(11)</data-type>
       </column>
-      <index id="115" parent="15" name="User_Votes_user_id_index">
+      <index id="121" parent="15" name="User_Votes_user_id_index">
         <columns>user_id</columns>
         <desc-columns></desc-columns>
       </index>
-      <index id="116" parent="15" name="User_Votes_vote_type_index">
+      <index id="122" parent="15" name="User_Votes_vote_type_index">
         <columns>vote_type</columns>
         <desc-columns></desc-columns>
       </index>
-      <key id="117" parent="15" name="PRIMARY">
+      <key id="123" parent="15" name="PRIMARY">
         <columns>user_id
 vote_type</columns>
         <primary>1</primary>
       </key>
-      <column id="118" parent="16" name="int_col">
+      <column id="124" parent="16" name="int_col">
         <data-type>int(11)</data-type>
       </column>
-      <column id="119" parent="16" name="string_col">
+      <column id="125" parent="16" name="string_col">
         <data-type>varchar(50)</data-type>
       </column>
-      <column id="120" parent="16" name="decimal_col">
+      <column id="126" parent="16" name="decimal_col">
         <data-type>decimal(10,5)</data-type>
       </column>
-      <column id="121" parent="17" name="alias">
+      <column id="127" parent="17" name="alias">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="122" parent="17" name="category">
+      <column id="128" parent="17" name="category">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <key id="123" parent="17" name="PRIMARY">
+      <key id="129" parent="17" name="PRIMARY">
         <columns>alias</columns>
         <primary>1</primary>
       </key>
-      <column id="124" parent="18" name="alias">
+      <column id="130" parent="18" name="alias">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="125" parent="18" name="parent_alias">
+      <column id="131" parent="18" name="parent_alias">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <key id="126" parent="18" name="PRIMARY">
+      <key id="132" parent="18" name="PRIMARY">
         <columns>alias
 parent_alias</columns>
         <primary>1</primary>
       </key>
-      <column id="127" parent="19" name="alias">
+      <column id="133" parent="19" name="alias">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="128" parent="19" name="list_type">
+      <column id="134" parent="19" name="list_type">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <column id="129" parent="19" name="country">
+      <column id="135" parent="19" name="country">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
       </column>
-      <key id="130" parent="19" name="PRIMARY">
+      <key id="136" parent="19" name="PRIMARY">
         <columns>alias
 list_type
 country</columns>
         <primary>1</primary>
       </key>
-      <column id="131" parent="20" name="stars">
+      <column id="137" parent="20" name="stars">
         <data-type>decimal(10,5)</data-type>
       </column>
-      <column id="132" parent="20" name="review_text">
+      <column id="138" parent="20" name="review_text">
         <data-type>varchar(5000)</data-type>
       </column>
-      <column id="133" parent="21" name="run_id">
+      <column id="139" parent="21" name="run_id">
         <mandatory>1</mandatory>
         <data-type>int(11)</data-type>
       </column>
-      <column id="134" parent="21" name="run_time_stamp">
+      <column id="140" parent="21" name="run_time_stamp">
         <data-type>datetime</data-type>
       </column>
-      <column id="135" parent="21" name="train_time">
+      <column id="141" parent="21" name="train_time">
         <data-type>decimal(13,3)</data-type>
       </column>
-      <column id="136" parent="21" name="test_time">
+      <column id="142" parent="21" name="test_time">
         <data-type>decimal(13,3)</data-type>
       </column>
-      <column id="137" parent="21" name="accuracy">
+      <column id="143" parent="21" name="accuracy">
         <data-type>decimal(7,5)</data-type>
       </column>
-      <column id="138" parent="21" name="f1_score">
+      <column id="144" parent="21" name="f1_score">
         <data-type>decimal(7,5)</data-type>
       </column>
-      <column id="139" parent="21" name="classifier_info">
+      <column id="145" parent="21" name="classifier_info">
         <data-type>varchar(5000)</data-type>
       </column>
-      <column id="140" parent="21" name="run_notes">
+      <column id="146" parent="21" name="run_notes">
         <data-type>varchar(5000)</data-type>
       </column>
-      <column id="141" parent="21" name="transform_info">
+      <column id="147" parent="21" name="transform_info">
         <data-type>varchar(5000)</data-type>
       </column>
-      <column id="142" parent="21" name="data_info">
+      <column id="148" parent="21" name="data_info">
         <data-type>varchar(5000)</data-type>
       </column>
-      <index id="143" parent="21" name="model_runs_run_id_uindex">
+      <index id="149" parent="21" name="model_runs_run_id_uindex">
         <columns>run_id</columns>
         <desc-columns></desc-columns>
         <unique>1</unique>
       </index>
-      <key id="144" parent="21" name="model_runs_run_id_uindex">
+      <key id="150" parent="21" name="model_runs_run_id_uindex">
         <columns>run_id</columns>
         <underlying-index>model_runs_run_id_uindex</underlying-index>
       </key>
-      <key id="145" parent="21" name="PRIMARY">
+      <key id="151" parent="21" name="PRIMARY">
         <columns>run_id</columns>
         <primary>1</primary>
       </key>
-      <column id="146" parent="22" name="run_id">
+      <column id="152" parent="22" name="run_id">
         <mandatory>1</mandatory>
         <data-type>int(11)</data-type>
       </column>
-      <column id="147" parent="22" name="class_label">
+      <column id="153" parent="22" name="class_label">
         <mandatory>1</mandatory>
         <data-type>varchar(500)</data-type>
       </column>
-      <column id="148" parent="22" name="precision_score">
+      <column id="154" parent="22" name="precision_score">
         <data-type>decimal(4,3)</data-type>
       </column>
-      <column id="149" parent="22" name="recall_score">
+      <column id="155" parent="22" name="recall_score">
         <data-type>decimal(4,3)</data-type>
       </column>
-      <column id="150" parent="22" name="f1_score">
+      <column id="156" parent="22" name="f1_score">
         <data-type>decimal(4,3)</data-type>
       </column>
-      <key id="151" parent="22" name="PRIMARY">
+      <key id="157" parent="22" name="PRIMARY">
         <columns>run_id
 class_label</columns>
         <primary>1</primary>
       </key>
-      <column id="152" parent="23" name="run_id">
+      <column id="158" parent="23" name="run_id">
         <mandatory>1</mandatory>
         <data-type>int(11)</data-type>
       </column>
-      <column id="153" parent="23" name="row_class">
+      <column id="159" parent="23" name="row_class">
         <mandatory>1</mandatory>
         <data-type>varchar(500)</data-type>
       </column>
-      <column id="154" parent="23" name="col_class">
+      <column id="160" parent="23" name="col_class">
         <mandatory>1</mandatory>
         <data-type>varchar(500)</data-type>
       </column>
-      <column id="155" parent="23" name="the_value">
+      <column id="161" parent="23" name="the_value">
         <data-type>int(11)</data-type>
       </column>
-      <key id="156" parent="23" name="PRIMARY">
+      <key id="162" parent="23" name="PRIMARY">
         <columns>run_id
 row_class
 col_class</columns>
         <primary>1</primary>
       </key>
-      <column id="157" parent="24" name="category">
+      <column id="163" parent="24" name="state">
+        <data-type>varchar(3)</data-type>
+      </column>
+      <column id="164" parent="24" name="country">
+        <data-type>varchar(10)</data-type>
+      </column>
+      <column id="165" parent="25" name="category">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
         <default-expression>&apos;&apos;</default-expression>
       </column>
-      <column id="158" parent="24" name="alias">
+      <column id="166" parent="25" name="alias">
         <mandatory>1</mandatory>
         <data-type>varchar(250)</data-type>
         <default-expression>&apos;&apos;</default-expression>
+      </column>
+      <column id="167" parent="26" name="run_id">
+        <mandatory>1</mandatory>
+        <data-type>int(11)</data-type>
+      </column>
+      <column id="168" parent="26" name="row_class">
+        <mandatory>1</mandatory>
+        <data-type>varchar(500)</data-type>
+      </column>
+      <column id="169" parent="26" name="1_star">
+        <data-type>decimal(41)</data-type>
+      </column>
+      <column id="170" parent="26" name="2_stars">
+        <data-type>decimal(41)</data-type>
+      </column>
+      <column id="171" parent="26" name="3_stars">
+        <data-type>decimal(41)</data-type>
+      </column>
+      <column id="172" parent="26" name="4_stars">
+        <data-type>decimal(41)</data-type>
+      </column>
+      <column id="173" parent="26" name="5_stars">
+        <data-type>decimal(41)</data-type>
+      </column>
+      <column id="174" parent="27" name="run_id">
+        <mandatory>1</mandatory>
+        <data-type>int(11)</data-type>
+        <default-expression>&apos;0&apos;</default-expression>
+      </column>
+      <column id="175" parent="27" name="run_notes">
+        <data-type>varchar(5000)</data-type>
+      </column>
+      <column id="176" parent="27" name="classifier_info">
+        <data-type>varchar(5000)</data-type>
+      </column>
+      <column id="177" parent="27" name="avg_f1_score">
+        <data-type>decimal(7,5)</data-type>
+      </column>
+      <column id="178" parent="27" name="avg_accuracy">
+        <data-type>decimal(7,5)</data-type>
+      </column>
+      <column id="179" parent="27" name="test_time">
+        <data-type>decimal(13,3)</data-type>
+      </column>
+      <column id="180" parent="27" name="train_time">
+        <data-type>decimal(13,3)</data-type>
+      </column>
+      <column id="181" parent="27" name="class_label">
+        <mandatory>1</mandatory>
+        <data-type>varchar(500)</data-type>
+      </column>
+      <column id="182" parent="27" name="f1_score">
+        <data-type>decimal(4,3)</data-type>
+      </column>
+      <column id="183" parent="27" name="precision_score">
+        <data-type>decimal(4,3)</data-type>
+      </column>
+      <column id="184" parent="27" name="recall_score">
+        <data-type>decimal(4,3)</data-type>
+      </column>
+      <column id="185" parent="28" name="review_id">
+        <mandatory>1</mandatory>
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="186" parent="28" name="business_id">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="187" parent="28" name="user_id">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="188" parent="28" name="stars">
+        <data-type>decimal(10,5)</data-type>
+      </column>
+      <column id="189" parent="28" name="review_text">
+        <data-type>varchar(5000)</data-type>
+      </column>
+      <column id="190" parent="28" name="review_date">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="191" parent="29" name="type">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="192" parent="29" name="business_id">
+        <mandatory>1</mandatory>
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="193" parent="29" name="name">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="194" parent="29" name="city">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="195" parent="29" name="state">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="196" parent="29" name="latitude">
+        <data-type>decimal(20,16)</data-type>
+      </column>
+      <column id="197" parent="29" name="longitude">
+        <data-type>decimal(20,16)</data-type>
+      </column>
+      <column id="198" parent="29" name="stars">
+        <data-type>decimal(10,5)</data-type>
+      </column>
+      <column id="199" parent="29" name="review_count">
+        <data-type>int(11)</data-type>
+      </column>
+      <column id="200" parent="29" name="open">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="201" parent="29" name="full_address">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="202" parent="29" name="country">
+        <data-type>varchar(10)</data-type>
+      </column>
+      <column id="203" parent="30" name="review_id">
+        <mandatory>1</mandatory>
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="204" parent="30" name="user_id">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="205" parent="30" name="stars">
+        <data-type>decimal(10,5)</data-type>
+      </column>
+      <column id="206" parent="30" name="review_text">
+        <data-type>varchar(5000)</data-type>
+      </column>
+      <column id="207" parent="30" name="review_date">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="208" parent="30" name="business_id">
+        <mandatory>1</mandatory>
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="209" parent="30" name="name">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="210" parent="30" name="city">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="211" parent="30" name="state">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="212" parent="30" name="latitude">
+        <data-type>decimal(20,16)</data-type>
+      </column>
+      <column id="213" parent="30" name="longitude">
+        <data-type>decimal(20,16)</data-type>
+      </column>
+      <column id="214" parent="30" name="business_stars">
+        <data-type>decimal(10,5)</data-type>
+      </column>
+      <column id="215" parent="30" name="review_count">
+        <data-type>int(11)</data-type>
+      </column>
+      <column id="216" parent="30" name="open">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="217" parent="30" name="full_address">
+        <data-type>varchar(250)</data-type>
+      </column>
+      <column id="218" parent="30" name="country">
+        <data-type>varchar(10)</data-type>
       </column>
     </database-model>
   </data-source>

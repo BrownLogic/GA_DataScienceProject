@@ -7,8 +7,16 @@ database.py: provides information to make a database connection
 
 login_info = {
     "host": "localhost",
-    "user": "YOUR_USER",
-    "passwd": "YOUR_PASSWORD",
+    "user": "dbrown",
+    "passwd": "keb75042",
     "db": "projectdb",
     "port": 3306}
 
+"""
+login_info = {
+    "host":"brownlogic.cipbrsumelmh.us-west-2.rds.amazonaws.com",
+    "user":"dbrown",
+    "passwd":"keb75042",
+    "db":"ProjectDB",
+    "port": 3306}
+"""
