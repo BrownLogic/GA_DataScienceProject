@@ -8,7 +8,7 @@ The final project turned out to be a classification problem:
 
 As I approached the problem, I didn't make any assumptions about which data that I would need to use.  As a result, I spent a lot of time writing parsers and storage for *all* of the files. 
 
-Additionally, I discovered that processing the data takes a long time. Much of my initial analysis was spent in brute-force iterating with multiple classifiers.  At first, I kept track of the results in text files but soon discovered that it was tedious fiddling with various paramaters and trying to remember the specific ones that resulted in the results I was reviewing.  Additionally, I lost several days worth of work and processing time when results exceeded the buffer.  
+Additionally, I discovered that processing the data takes a long time. Much of my initial analysis was spent in brute-force iterating with multiple classifiers.  At first, I kept track of the results in text files but soon discovered that it was tedious fiddling with various parameters and trying to remember the specific ones that resulted in the results I was reviewing.  Additionally, I lost several days worth of work and processing time when results exceeded the buffer.  
 
 To solve this problem, I built some tables and code to exercise the models and save runs and context about those runs.
   
